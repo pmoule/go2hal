@@ -39,6 +39,7 @@ func (r *resourceObject) EmbeddedResources() NamedMap {
 	return r.embedded.ToMap()
 }
 
+//todo: rename to ToJSON
 func (r *resourceObject) ToJson() ([]byte, error) {
 	resourceMap := r.ToMap()
 	return json.Marshal(resourceMap.Content)
