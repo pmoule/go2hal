@@ -1,7 +1,23 @@
 # go2hal
 A **Go** implementation of **Hypertext Application Language (HAL)**.
-It provides essential data structures and features a JSON encoder
+It provides essential data structures and features a JSON generator
 to produce **JSON** output as proposed in [JSON Hypertext Application Language](https://tools.ietf.org/html/draft-kelly-json-hal-07).
+
+##Features
+- HAL API
+    - Create root **Resource Object**.
+    - Supports "_links" property
+
+        Define **Link Relations** and assign **Link Object** value(s).
+
+    - Supports "_embedded" property:
+
+        Define **Link Relations** and assign **Resource Object** value(s).
+    - Supports "curies"
+
+        Define CURIE **Link Objects** and assign to defined **Link Relations**.
+- JSON generator to produce HAL Document
+
 
 ##Usage
 Will provide good examples, soon.
