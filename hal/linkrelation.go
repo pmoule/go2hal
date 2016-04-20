@@ -7,7 +7,7 @@ package hal
 import "errors"
 
 type linkRelation struct {
-	name string
+	name      string
 	curieLink *LinkObject
 }
 
@@ -20,11 +20,15 @@ func NewLinkRelation(name string) (*linkRelation, error) {
 }
 
 func (lr *linkRelation) Name() string {
+	return lr.name
+}
+
+func (lr *linkRelation) FullName() string {
 	if lr.curieLink == nil {
-		return lr.name
+		return lr.Name()
 	}
 
-	return lr.curieLink.Name + "." +lr.name
+	return lr.curieLink.Name + ":" + lr.Name()
 }
 
 func (lr *linkRelation) SetCurieLink(curieLink *LinkObject) {
