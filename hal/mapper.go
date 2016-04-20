@@ -8,9 +8,11 @@ type mapper interface {
 	ToMap() NamedMap
 }
 
+//todo: add getters and make properties private
 type NamedMap struct {
 	Name    string
 	Content PropertyMap
 }
 
+// A PropertyMap simply maps a string to any kind of value.
 type PropertyMap map[string]interface{}
