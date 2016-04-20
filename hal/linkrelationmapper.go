@@ -4,13 +4,13 @@
 
 package hal
 
-type linkRelationMapper map[linkRelation]interface{}
+type linkRelationMapper map[LinkRelation]interface{}
 
 func (lrm *linkRelationMapper) ToMap() NamedMap {
 	linkMap := PropertyMap{}
 
 	for key, val := range *lrm {
-		linkMap[key.Name()] = val
+		linkMap[key.FullName()] = val
 	}
 
 	return NamedMap{Name: "_links", Content: linkMap}

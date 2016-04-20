@@ -6,24 +6,24 @@ package hal
 
 import "errors"
 
-type linkRelation struct {
+type LinkRelation struct {
 	name      string
 	curieLink *LinkObject
 }
 
-func NewLinkRelation(name string) (*linkRelation, error) {
+func NewLinkRelation(name string) (*LinkRelation, error) {
 	if name == "" {
 		return nil, errors.New("LinkRelation requires a name value.")
 	}
 
-	return &linkRelation{name: name}, nil
+	return &LinkRelation{name: name}, nil
 }
 
-func (lr *linkRelation) Name() string {
+func (lr *LinkRelation) Name() string {
 	return lr.name
 }
 
-func (lr *linkRelation) FullName() string {
+func (lr *LinkRelation) FullName() string {
 	if lr.curieLink == nil {
 		return lr.Name()
 	}
@@ -31,10 +31,10 @@ func (lr *linkRelation) FullName() string {
 	return lr.curieLink.Name + ":" + lr.Name()
 }
 
-func (lr *linkRelation) SetCurieLink(curieLink *LinkObject) {
+func (lr *LinkRelation) SetCurieLink(curieLink *LinkObject) {
 	lr.curieLink = curieLink
 }
 
-func (lr *linkRelation) CurieLink() LinkObject {
+func (lr *LinkRelation) CurieLink() LinkObject {
 	return *lr.curieLink
 }

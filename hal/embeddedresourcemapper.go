@@ -4,13 +4,13 @@
 
 package hal
 
-type embeddedResourceMapper map[linkRelation]interface{}
+type embeddedResourceMapper map[LinkRelation]interface{}
 
 func (erm *embeddedResourceMapper) ToMap() NamedMap {
 	embeddedMap := PropertyMap{}
 
 	for key, val := range *erm {
-		embeddedMap[key.Name()] = val
+		embeddedMap[key.FullName()] = val
 	}
 
 	for key, val := range embeddedMap {
