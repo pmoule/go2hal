@@ -39,7 +39,7 @@ encodedJSON, err := root.ToJson()
 ##Documentation
 See package documentation:
 
-[![GoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](http://godoc.org/github.com/pmoule/go2hal/hal)
+[![GoDoc](https://godoc.org/github.com/pmoule/go2hal/hal?status.svg)](https://godoc.org/github.com/pmoule/go2hal/hal)
 
 ## Todo
 - provide better examples for usage

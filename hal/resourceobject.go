@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 )
 
-//todo: add reference to https://tools.ietf.org/html/draft-kelly-json-hal-07
 type Resource interface {
 	Data() PropertyMap
 	Links() NamedMap
@@ -44,7 +43,7 @@ func (r *resourceObject) EmbeddedResources() NamedMap {
 }
 
 //todo: rename to ToJSON
-func (r *resourceObject) ToJson() ([]byte, error) {
+func (r *resourceObject) ToJSON() ([]byte, error) {
 	resourceMap := r.ToMap()
 	return json.Marshal(resourceMap.Content)
 }
