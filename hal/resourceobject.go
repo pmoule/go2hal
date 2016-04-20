@@ -17,7 +17,7 @@ type Resource interface {
 	AddResourceObject(rel *linkRelation, resource Resource)
 	AddResourceObjects(rel *linkRelation, resources []Resource)
 	AddCurieLink(link *LinkObject)
-	ToJson() ([]byte, error)
+	ToJSON() ([]byte, error)
 }
 
 type resourceObject struct {
