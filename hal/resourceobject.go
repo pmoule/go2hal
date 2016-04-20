@@ -12,11 +12,11 @@ type Resource interface {
 	Data() PropertyMap
 	Links() NamedMap
 	EmbeddedResources() NamedMap
-	AddLinkObject(rel *LinkRelation, linkObject *LinkObject)
-	AddLinkObjects(rel *LinkRelation, linkObjects []*LinkObject)
-	AddResourceObject(rel *LinkRelation, resource Resource)
-	AddResourceObjects(rel *LinkRelation, resources []Resource)
-	AddCurieLink(link *LinkObject)
+	AddLinkObject(rel LinkRelation, linkObject *LinkObject)
+	AddLinkObjects(rel LinkRelation, linkObjects []*LinkObject)
+	AddResourceObject(rel LinkRelation, resource Resource)
+	AddResourceObjects(rel LinkRelation, resources []Resource)
+	AddCurieLinks(link []*LinkObject)
 	ToJSON() ([]byte, error)
 }
 
@@ -42,7 +42,6 @@ func (r *resourceObject) EmbeddedResources() NamedMap {
 	return r.embedded.ToMap()
 }
 
-//todo: rename to ToJSON
 func (r *resourceObject) ToJSON() ([]byte, error) {
 	resourceMap := r.ToMap()
 	return json.Marshal(resourceMap.Content)
@@ -68,32 +67,20 @@ func (r *resourceObject) ToMap() NamedMap {
 	return NamedMap{Name: "root", Content: resourceMap}
 }
 
-func (r *resourceObject) AddCurieLink(link *LinkObject) {
-	var linkSlice []*LinkObject
-
-	rel := LinkRelation{name: "curies"}
-	existingLinkSlice, ok := r.links[rel]
-
-	if !ok {
-		linkSlice = []*LinkObject{}
-	} else {
-		linkSlice = existingLinkSlice.([]*LinkObject)
-	}
-
-	linkSlice = append(linkSlice, link)
-
-	r.AddLinkObjects(&rel, linkSlice)
+func (r *resourceObject) AddCurieLinks(linkObjects []*LinkObject) {
+	rel, _ := NewLinkRelation("curies")
+	r.AddLinkObjects(rel, linkObjects)
 }
 
-func (r *resourceObject) AddLinkObject(rel *LinkRelation, linkObject *LinkObject) {
+func (r *resourceObject) AddLinkObject(rel LinkRelation, linkObject *LinkObject) {
 	if r.links == nil {
 		r.links = linkRelationMapper{}
 	}
 
-	r.links[*rel] = linkObject
+	r.links[rel] = linkObject
 }
 
-func (r *resourceObject) AddLinkObjects(rel *LinkRelation, linkObjects []*LinkObject) {
+func (r *resourceObject) AddLinkObjects(rel LinkRelation, linkObjects []*LinkObject) {
 	if r.links == nil {
 		r.links = linkRelationMapper{}
 	}
@@ -104,18 +91,18 @@ func (r *resourceObject) AddLinkObjects(rel *LinkRelation, linkObjects []*LinkOb
 		dataSlice[index] = linkObject
 	}
 
-	r.links[*rel] = dataSlice
+	r.links[rel] = dataSlice
 }
 
-func (r *resourceObject) AddResourceObject(rel *LinkRelation, resource Resource) {
+func (r *resourceObject) AddResourceObject(rel LinkRelation, resource Resource) {
 	if r.embedded == nil {
 		r.embedded = embeddedResourceMapper{}
 	}
 
-	r.embedded[*rel] = resource
+	r.embedded[rel] = resource
 }
 
-func (r *resourceObject) AddResourceObjects(rel *LinkRelation, resources []Resource) {
+func (r *resourceObject) AddResourceObjects(rel LinkRelation, resources []Resource) {
 	if r.embedded == nil {
 		r.embedded = embeddedResourceMapper{}
 	}
@@ -126,5 +113,5 @@ func (r *resourceObject) AddResourceObjects(rel *LinkRelation, resources []Resou
 		dataSlice[index] = resource
 	}
 
-	r.embedded[*rel] = dataSlice
+	r.embedded[rel] = dataSlice
 }
