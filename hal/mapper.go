@@ -8,8 +8,6 @@ type mapper interface {
 	ToMap() NamedMap
 }
 
-//todo: add getters and make properties private
-
 // NamedMap simply links a name with PropertyMap
 type NamedMap struct {
 	Name    string
