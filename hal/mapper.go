@@ -9,10 +9,12 @@ type mapper interface {
 }
 
 //todo: add getters and make properties private
+
+// NamedMap simply links a name with PropertyMap
 type NamedMap struct {
 	Name    string
 	Content PropertyMap
 }
 
-// A PropertyMap simply maps a string to any kind of value.
+// PropertyMap simply maps a string to any kind of value.
 type PropertyMap map[string]interface{}

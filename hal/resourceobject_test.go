@@ -6,15 +6,17 @@ package hal
 
 import (
 	"testing"
+	"fmt"
 	"reflect"
 )
 
 func TestAddLinkObject(t *testing.T) {
 	want, _ := NewLinkRelation("relation")
+	want.SetLink(&LinkObject{})
 	wantedName := "_links"
 
 	resourceObject := NewResourceObject()
-	resourceObject.AddLinkObject(want, &LinkObject{})
+	resourceObject.AddLink(want)
 
 	namedMap := resourceObject.Links()
 
@@ -30,12 +32,12 @@ func TestAddLinkObject(t *testing.T) {
 }
 
 func TestAddResourceObject(t *testing.T) {
-	want, _ := NewLinkRelation("relation")
+	want, _ := NewResourceRelation("relation")
+	want.SetResource(NewResourceObject())
 	wantedName := "_embedded"
 
-	embeddedResource := NewResourceObject()
 	resourceObject := NewResourceObject()
-	resourceObject.AddResourceObject(want, embeddedResource)
+	resourceObject.AddResource(want)
 
 	namedMap := resourceObject.EmbeddedResources()
 
@@ -81,10 +83,12 @@ func TestAddCurieLink(t *testing.T) {
 
 	curieLink2, _ := NewCurieLink(curieName, curieHref)
 	resourceObject.AddCurieLinks([]*LinkObject {curieLink, curieLink2})
-	val = resourceObject.Links().Content["curies"]
-	result, _ = val.([]*LinkObject)
 
-	if count := len(result); count != 2 {
+	fmt.Println("length: " + string(len(resourceObject.Links().Content)))
+	val2 := resourceObject.Links().Content["curies"]
+	result2, _ := val2.([]*LinkObject)
+
+	if count := len(result2); count != 2 {
 		t.Errorf("CurieLink count == %d, want %d", count, 2)
 	}
 }

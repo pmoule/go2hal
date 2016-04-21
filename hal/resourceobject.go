@@ -4,30 +4,25 @@
 
 package hal
 
-import (
-	"encoding/json"
-)
-
+// A Resource is the root element of a HAL document.
 type Resource interface {
 	Data() PropertyMap
 	Links() NamedMap
 	EmbeddedResources() NamedMap
-	AddLinkObject(rel LinkRelation, linkObject *LinkObject)
-	AddLinkObjects(rel LinkRelation, linkObjects []*LinkObject)
-	AddResourceObject(rel LinkRelation, resource Resource)
-	AddResourceObjects(rel LinkRelation, resources []Resource)
+	AddLink(LinkRelation)
+	AddResource(ResourceRelation)
 	AddCurieLinks(link []*LinkObject)
-	ToJSON() ([]byte, error)
 }
 
 type resourceObject struct {
 	data     PropertyMap `json:"-"`
-	links    linkRelationMapper `json:"_links,omitempty"`
-	embedded embeddedResourceMapper `json:"_embedded,omitempty"`
+	links    links `json:"_links,omitempty"`
+	embedded embeddedResources `json:"_embedded,omitempty"`
 }
 
+// NewResourceObject initializes a valid Resource.
 func NewResourceObject() Resource {
-	return &resourceObject{data: PropertyMap{}}
+	return &resourceObject{data: PropertyMap{}, links: links{}, embedded: embeddedResources{}}
 }
 
 func (r *resourceObject) Data() PropertyMap {
@@ -40,11 +35,6 @@ func (r *resourceObject) Links() NamedMap {
 
 func (r *resourceObject) EmbeddedResources() NamedMap {
 	return r.embedded.ToMap()
-}
-
-func (r *resourceObject) ToJSON() ([]byte, error) {
-	resourceMap := r.ToMap()
-	return json.Marshal(resourceMap.Content)
 }
 
 func (r *resourceObject) ToMap() NamedMap {
@@ -69,49 +59,14 @@ func (r *resourceObject) ToMap() NamedMap {
 
 func (r *resourceObject) AddCurieLinks(linkObjects []*LinkObject) {
 	rel, _ := NewLinkRelation("curies")
-	r.AddLinkObjects(rel, linkObjects)
+	rel.SetLinks(linkObjects)
+	r.AddLink(rel)
 }
 
-func (r *resourceObject) AddLinkObject(rel LinkRelation, linkObject *LinkObject) {
-	if r.links == nil {
-		r.links = linkRelationMapper{}
-	}
-
-	r.links[rel] = linkObject
+func (r *resourceObject) AddLink(rel LinkRelation) {
+	r.links[rel.Name()] = rel
 }
 
-func (r *resourceObject) AddLinkObjects(rel LinkRelation, linkObjects []*LinkObject) {
-	if r.links == nil {
-		r.links = linkRelationMapper{}
-	}
-
-	dataSlice := make([]*LinkObject, len(linkObjects))
-
-	for index, linkObject := range linkObjects {
-		dataSlice[index] = linkObject
-	}
-
-	r.links[rel] = dataSlice
-}
-
-func (r *resourceObject) AddResourceObject(rel LinkRelation, resource Resource) {
-	if r.embedded == nil {
-		r.embedded = embeddedResourceMapper{}
-	}
-
-	r.embedded[rel] = resource
-}
-
-func (r *resourceObject) AddResourceObjects(rel LinkRelation, resources []Resource) {
-	if r.embedded == nil {
-		r.embedded = embeddedResourceMapper{}
-	}
-
-	dataSlice := make([]Resource, len(resources))
-
-	for index, resource := range resources {
-		dataSlice[index] = resource
-	}
-
-	r.embedded[rel] = dataSlice
+func (r *resourceObject) AddResource(rel ResourceRelation) {
+	r.embedded[rel.Name()] = rel
 }
