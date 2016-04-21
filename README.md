@@ -47,12 +47,120 @@ self.SetLink(link)
 
 root.AddLink(self)
 ```
-This is the generated JSON
+Generated JSON
 ```
 {
     "_links": {
-        "self": { "href": "/docwhoapi/doctors" }
+        "self": {
+            "href": "/docwhoapi/doctors"
+        }
     }
+}
+```
+To add some resource state, you can add some properties.
+These properties must be valid JSON
+
+(Currently, this is not checked)
+```go
+data := root.Data()
+data["doctorCount"] = 12
+```
+Generated JSON
+```
+{
+    "_links": {
+        "self": {
+            "href": "/docwhoapi/doctors"
+        }
+    },
+    "doctorCount": 12
+}
+```
+Todo: add embedded resource
+```go
+actorResources []hal.Resource
+// ...
+// Skipped populating actorResources.
+// ...
+
+doctors, _ := hal.NewResourceRelation("doctor")
+doctors.SetResources(actorResources)
+```
+Generated JSON
+```
+{
+    "_links": {
+        "self": {
+            "href": "/docwhoapi/doctors"
+        }
+    },
+    "_embedded": {
+        "doctors": [
+            {
+                "_links": {
+                    "self": {
+                        "href": "/docwhoapi/doctors/1"
+                    }
+                },
+                "name": "William Hartnell"
+            },
+            {
+                "_links": {
+                    "self": {
+                        "href": "/docwhoapi/doctors/2"
+                    }
+                },
+                "name": "Patrick Troughton"
+            },
+        ]
+    },
+    "doctorCount": 12
+}
+```
+Todo: add CURIEs
+```go
+curieLink, _ := hal.NewCurieLink("doc", "http://example.com/docs/relations/{rel}")
+curieLinks := []*hal.LinkObject {curieLink}
+root.AddCurieLinks(curieLinks)
+
+doctors.SetCurieLink(curieLink)
+```
+Generated JSON
+```
+{
+    "_links": {
+        "curies": [
+            {
+                "href": "http://example.com/docs/relations/{rel}",
+                "templated": true,
+                "name": "doc"
+            }
+        ]
+        "self": {
+            "href": "/docwhoapi/doctors"
+        }
+    },
+    "_embedded": {
+            "doc:doctors": [
+                {
+                    "_links": {
+                        "self": {
+                            "href": "/docwhoapi/doctors/1"
+                        }
+                    },
+                    "name": "William Hartnell"
+                },
+                {
+                    "_links": {
+                        "self": {
+                            "href": "/docwhoapi/doctors/2"
+                        }
+                    },
+                    "name": "Patrick Troughton"
+                },
+            ]
+        },
+    "doctorCount": 12
 }
 ```
 
