@@ -14,8 +14,8 @@ type Encoder struct {
 
 func (enc *Encoder) ToJSON(resource Resource) ([]byte, error) {
 	if mapper, ok := resource.(mapper); ok {
-		resourceMap := mapper.ToMap()
-		return json.Marshal(resourceMap.Content)
+		namedMap := mapper.ToMap()
+		return json.Marshal(namedMap.Content)
 	}
 
 	return nil, errors.New("Resource is not of type mapper.")
