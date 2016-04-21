@@ -14,7 +14,6 @@ type Relation interface {
 	FullName() string
 	SetCurieLink(curieLink *LinkObject)
 	CurieLink() LinkObject
-	Value() interface{}
 }
 
 // LinkRelation is a Relation for Link Object assignment.
@@ -22,6 +21,8 @@ type LinkRelation interface {
 	Relation
 	SetLink(*LinkObject)
 	SetLinks([]*LinkObject)
+	IsLinkSet() bool
+	Links() []*LinkObject
 }
 
 // ResourceRelation is a Relation for Resource Object assignment.
@@ -29,13 +30,17 @@ type ResourceRelation interface {
 	Relation
 	SetResource(Resource)
 	SetResources([]Resource)
+	IsResourceSet() bool
+	Resources() []Resource
 }
 
 // An unexported implementation of the LinkRelation interface.
 type linkRelation struct {
-	name      string
-	curieLink *LinkObject
-	value     interface{}
+	name       string
+	curieLink  *LinkObject
+	isValueSet bool
+	links      []*LinkObject
+	resources  []Resource
 }
 
 // newRelation initializes a valid link relation.
@@ -44,7 +49,7 @@ func newRelation(name string) (*linkRelation, error) {
 		return nil, errors.New("LinkRelation requires a name value.")
 	}
 
-	return &linkRelation{name: name}, nil
+	return &linkRelation{name: name, links: []*LinkObject{}, resources: []Resource{}}, nil
 }
 
 // NewLinkRelation initializes a valid Link Relation for Link Object assignment.
@@ -85,26 +90,48 @@ func (lr *linkRelation) CurieLink() LinkObject {
 
 // Assign a single Link Object
 func (lr *linkRelation) SetLink(link *LinkObject) {
-	lr.value = link
+	lr.links = append(lr.links, link)
+	lr.isValueSet = false
 }
 
 // Assign a slice of Link Objects
 func (lr *linkRelation) SetLinks(links []*LinkObject) {
-	lr.value = links
+	for _, link := range links {
+		lr.links = append(lr.links, link)
+	}
+
+	lr.isValueSet = true
+}
+
+func (lr *linkRelation) Links() []*LinkObject {
+	return lr.links
+}
+
+func (lr *linkRelation) IsLinkSet() bool {
+	return lr.isValueSet
 }
 
 // Assign a Resource Object
 func (lr *linkRelation) SetResource(resource Resource) {
-	lr.value = resource
+	lr.resources = append(lr.resources, resource)
+	lr.isValueSet = false
 }
 
 // Assign a slice of Resource Objects
 func (lr *linkRelation) SetResources(resources []Resource) {
-	lr.value = resources
+	for _, resource := range resources {
+		lr.resources = append(lr.resources, resource)
+	}
+
+	lr.isValueSet = true
 }
 
-func (lr *linkRelation) Value() interface{} {
-	return lr.value
+func (lr *linkRelation) Resources() []Resource {
+	return lr.resources
+}
+
+func (lr *linkRelation) IsResourceSet() bool {
+	return lr.isValueSet
 }
 
 type links map[string]LinkRelation
@@ -113,7 +140,15 @@ func (l *links) ToMap() NamedMap {
 	linkMap := PropertyMap{}
 
 	for _, val := range *l {
-		linkMap[val.FullName()] = val.Value()
+		if val.IsLinkSet() {
+			linkMap[val.FullName()] = val.Links()
+		} else {
+			if len(val.Links()) > 0 {
+				linkMap[val.FullName()] = val.Links()[0]
+			} else {
+				linkMap[val.FullName()] = nil
+			}
+		}
 	}
 
 	return NamedMap{Name: "_links", Content: linkMap}
@@ -125,31 +160,27 @@ func (er *embeddedResources) ToMap() NamedMap {
 	embeddedMap := PropertyMap{}
 
 	for _, val := range *er {
-		embeddedMap[val.FullName()] = val.Value()
-	}
+		resources := val.Resources()
 
-	for key, val := range embeddedMap {
-		if resourceArray, isSlice := val.([]Resource); isSlice {
-			var resources []interface{}
+		propertyMaps := []PropertyMap{}
 
-			for _, resource := range resourceArray {
-				if mapper, ok := resource.(mapper); ok {
-					namedMap := mapper.ToMap()
-					resources = append(resources, namedMap.Content)
-				}
-			}
-
-			embeddedMap[key] = resources
-
-		} else {
-			resource := val.(Resource)
-
+		for _, resource := range resources {
 			if mapper, ok := resource.(mapper); ok {
 				namedMap := mapper.ToMap()
-				embeddedMap[key] = namedMap.Content
+				propertyMaps = append(propertyMaps, namedMap.Content)
+			}
+		}
+
+		if val.IsResourceSet() {
+			embeddedMap[val.FullName()] = propertyMaps
+		} else {
+			if len(propertyMaps) > 0 {
+				embeddedMap[val.FullName()] = propertyMaps[0]
+			} else {
+				embeddedMap[val.FullName()] = nil
 			}
 		}
 	}
 
-	return NamedMap{Name: "_embedded", Content: embeddedMap }
+	return NamedMap{Name: "_embedded", Content:  embeddedMap}
 }
