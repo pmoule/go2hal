@@ -136,10 +136,10 @@ func (lr *linkRelation) IsResourceSet() bool {
 
 type links map[string]LinkRelation
 
-func (l *links) ToMap() NamedMap {
+func (l links) ToMap() NamedMap {
 	linkMap := PropertyMap{}
 
-	for _, val := range *l {
+	for _, val := range l {
 		if val.IsLinkSet() {
 			linkMap[val.FullName()] = val.Links()
 		} else {
@@ -156,13 +156,13 @@ func (l *links) ToMap() NamedMap {
 
 type embeddedResources map[string]ResourceRelation
 
-func (er *embeddedResources) ToMap() NamedMap {
+func (er embeddedResources) ToMap() NamedMap {
 	embeddedMap := PropertyMap{}
 
-	for _, val := range *er {
+	for _, val := range er {
 		resources := val.Resources()
 
-		propertyMaps := []PropertyMap{}
+		var propertyMaps []PropertyMap
 
 		for _, resource := range resources {
 			if mapper, ok := resource.(mapper); ok {

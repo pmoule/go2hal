@@ -4,14 +4,18 @@
 
 package hal
 
-// A Resource is the root element of a HAL document.
+// Resource is the root element of a HAL document.
+// A Resource can
+// - have links - AddLink(LinkRelation)
+// - have CURIEs - AddCurieLinks([]*LinkObject)
+// - embed other resources - AddResource(ResourceRelation)
 type Resource interface {
 	Data() PropertyMap
 	Links() NamedMap
 	EmbeddedResources() NamedMap
 	AddLink(LinkRelation)
 	AddResource(ResourceRelation)
-	AddCurieLinks(link []*LinkObject)
+	AddCurieLinks([]*LinkObject)
 }
 
 type resourceObject struct {

@@ -6,7 +6,10 @@ package hal
 
 import "errors"
 
-//todo: check for required fields
+// LinkObject is a hyperlink from the Resource it is attached to.
+// A valid LinkObject requires a Href value. All other properties are optional.
+// See https://tools.ietf.org/html/draft-kelly-json-hal-07 for
+// property description.
 type LinkObject struct {
 	Href        string `json:"href,omitempty"`        //required
 	Templated   bool `json:"templated,omitempty"`     //optional
@@ -18,6 +21,7 @@ type LinkObject struct {
 	HrefLang    string `json:"hreflang,omitempty"`    //optional
 }
 
+// NewCurieLink initializes a special LinkObject required for establishing CURIEs.
 func NewCurieLink(name string, href string) (*LinkObject, error) {
 	if name == "" {
 		return nil, errors.New("Curie link requires a name value.")
