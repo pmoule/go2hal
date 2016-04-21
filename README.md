@@ -2,6 +2,7 @@
 A **Go** implementation of **Hypertext Application Language (HAL)**.
 It provides essential data structures and features a JSON generator
 to produce **JSON** output as proposed in [JSON Hypertext Application Language](https://tools.ietf.org/html/draft-kelly-json-hal).
+
 ##Features
 - HAL API
     - Create root **Resource Object**.
@@ -16,6 +17,7 @@ to produce **JSON** output as proposed in [JSON Hypertext Application Language](
 
         Define CURIE **Link Objects** and assign to defined **Link Relations**.
 - JSON generator to produce HAL Document
+
 ##Usage
 Import the `hal` package to get started.
 ```go
@@ -52,10 +54,12 @@ This is the generated JSON
     }
 }
 ```
+
 ##Documentation
 See package documentation:
 
 [![GoDoc](https://godoc.org/github.com/pmoule/go2hal/hal?status.svg)](https://godoc.org/github.com/pmoule/go2hal/hal)
+
 ## Todo
 - provide better examples for usage
 - howto: download
