@@ -18,6 +18,7 @@ to produce **JSON** output as proposed in [JSON Hypertext Application Language](
         Define CURIE **Link Objects** and assign to defined **Link Relations**.
 - JSON generator to produce HAL Document
 
+
 ##Usage
 Import the `hal` package to get started.
 ```go
