@@ -10,6 +10,37 @@ import (
 	"reflect"
 )
 
+func TestNewResource(t *testing.T) {
+	wanted := []interface{}{"_links", 0, "_embedded", 0, 0}
+
+	resource := NewResourceObject()
+	links := resource.Links()
+
+	if name := links.Name; name != wanted[0] {
+		t.Errorf("Links name is %s, want %s", name, wanted[0])
+	}
+
+	if count := len(links.Content); count != wanted[1] {
+		t.Errorf("Initial link amount %d, want %d", count, wanted[1])
+	}
+
+	embeddedResources := resource.EmbeddedResources()
+
+	if name := embeddedResources.Name; name != wanted[2] {
+		t.Errorf("Embedded resource name is %s, want %s", name, wanted[2])
+	}
+
+	if count := len(embeddedResources.Content); count != wanted[3] {
+		t.Errorf("Initial embeddedResources amount %d, want %d", count, wanted[3])
+	}
+
+	data := resource.Data()
+
+	if count := len(data); count != wanted[4] {
+		t.Errorf("Initial data amount %d, want %d", count, wanted[4])
+	}
+}
+
 func TestAddLinkObject(t *testing.T) {
 	want, _ := NewLinkRelation("relation")
 	want.SetLink(&LinkObject{})
@@ -64,7 +95,7 @@ func TestAddCurieLink(t *testing.T) {
 	curieHref := "http://doc/{rel}"
 	curieLink, _ := NewCurieLink(curieName, curieHref)
 
-	resourceObject.AddCurieLinks([]*LinkObject {curieLink})
+	resourceObject.AddCurieLinks([]*LinkObject{curieLink})
 
 	val := resourceObject.Links().Content["curies"]
 	result, ok := val.([]*LinkObject)
@@ -82,7 +113,7 @@ func TestAddCurieLink(t *testing.T) {
 	}
 
 	curieLink2, _ := NewCurieLink(curieName, curieHref)
-	resourceObject.AddCurieLinks([]*LinkObject {curieLink, curieLink2})
+	resourceObject.AddCurieLinks([]*LinkObject{curieLink, curieLink2})
 
 	fmt.Println("length: " + string(len(resourceObject.Links().Content)))
 	val2 := resourceObject.Links().Content["curies"]
