@@ -263,7 +263,7 @@ Generated JSON
 ```
 **go2hal** does not evaluate the assigned values. The developer is fully responsible of this.
 
-CURIEs are an exception of this. As stated in the [specification](https://tools.ietf.org/html/draft-kelly-json-hal-07#section-8.2)
+CURIEs are an exception of this. As stated in the [specification](https://tools.ietf.org/html/draft-kelly-json-hal#section-8.2)
 CURIEs are always an array of Link Objects.
 
 ##Documentation
