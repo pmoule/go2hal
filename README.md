@@ -24,6 +24,7 @@ Import the `hal` package to get started.
 ```go
 import "github.com/pmoule/go2hal/hal"
 ```
+###Create a Resource and JSON generation
 First create a Resource Object as your HAL document's root element.
 ```go
 root := hal.NewResourceObject()
@@ -38,7 +39,8 @@ The generated JSON is
 {}
 ```
 There's potential for more :smile:
-So let's add a `self` Link Relation.
+###Add a Link Relation
+So let's add a `self` Link Relation. Additionally we attach a single Link Object.
 ```go
 link := &hal.LinkObject{ Href: "/docwhoapi/doctors"}
 
@@ -57,6 +59,7 @@ Generated JSON
     }
 }
 ```
+###Resource state
 To add some resource state, you can add some properties.
 These properties must be valid JSON
 
@@ -76,15 +79,40 @@ Generated JSON
     "doctorCount": 12
 }
 ```
-Todo: add embedded resource
+###Embedding Resources
+Now, let's embed some resources.
 ```go
-actorResources []hal.Resource
-// ...
-// Skipped populating actorResources.
-// ...
+// a simple struct for actors of the doctor
+type Actor struct {
+    Id int
+    Name string
+}
 
-doctors, _ := hal.NewResourceRelation("doctor")
-doctors.SetResources(actorResources)
+actors := []Actor {
+    Actor{1, "William Hartnell"},
+    Actor{2, "Patrick Troughton"},
+}
+
+// convert the actors to resources
+var embeddedActors []hal.Resource
+
+for _, actor := range actors {
+    href := fmt.Sprintf("/docwhoapi/doctors/%d", actor.Id)
+    selfLink, _ := hal.NewLinkObject(href)
+
+    self, _ := hal.NewLinkRelation("self")
+    self.SetLink(selfLink)
+
+    embeddedActor := hal.NewResourceObject()
+    embeddedActor.AddLink(self)
+    embeddedActors = append(embeddedActors, embeddedActor)
+    embeddedActor.Data()["name"] = actor.Name
+}
+
+doctors, _ := hal.NewResourceRelation("doctors")
+doctors.SetResources(embeddedActors)
+
+root.AddResource(doctors)
 ```
 Generated JSON
 ```
@@ -111,13 +139,15 @@ Generated JSON
                     }
                 },
                 "name": "Patrick Troughton"
-            },
+            }
         ]
     },
     "doctorCount": 12
 }
 ```
-Todo: add CURIEs
+###CURIEs
+A Resource Object can have a set if CURIE links. Same for used Link Relations, that are capable of setting
+a CURIE link.
 ```go
 curieLink, _ := hal.NewCurieLink("doc", "http://example.com/docs/relations/{rel}")
 curieLinks := []*hal.LinkObject {curieLink}
@@ -157,12 +187,77 @@ Generated JSON
                         }
                     },
                     "name": "Patrick Troughton"
-                },
+                }
             ]
         },
     "doctorCount": 12
 }
 ```
+###Relations and the array vs single value discussion
+I'm aware of existing discussions regarding Relations and the type of assigned values.
+I simply deal with this topic by leaving the decision to the developer whether to
+assign a single value or an array value.
+
+**go2hal** provides a `LinkRelaton` and a `ResourceRelation`. Both are capable of holding
+a single value or an array value by providing special setter functions.
+
+**Example**
+```go
+link := hal.NewLinkObject("myHref")
+linkRelation := hal.NewLinkRelation("linkRel")
+
+resource := hal.NewResourceObject()
+resource.Data()["value"] = "myValue"
+resourceRelation := hal.NewResourceRelation("resourceRel")
+```
+Assign single values
+```go
+linkRelation.SetLink(link)
+resourceRelation.SetResource(resource)
+```
+Generated JSON
+```
+{
+    "_links": {
+        "linkRel": {
+            "href": "myHref"
+        }
+    },
+    "_embedded": {
+            "resourceRel": {
+                "value": "myValue"
+            }
+        },
+}
+```
+Assign array values
+```go
+linkRelation.SetLinks([]*LinkObject{link})
+resourceRelation.SetResources([]hal.Resource{resource})
+```
+Generated JSON
+```
+{
+    "_links": {
+        "linkRel": [
+            {
+                "href": "myHref"
+            }
+        ]
+    },
+    "_embedded": {
+            "resourceRel": [
+                {
+                    "value": "myValue"
+                }
+            ]
+        },
+}
+```
+**go2hal** does not evaluate the assigned values. The developer is fully responsible of this.
+
+CURIEs are an exception of this. As stated in the [specification](https://tools.ietf.org/html/draft-kelly-json-hal-07#section-8.2)
+CURIEs are always an array of Link Objects.
 
 ##Documentation
 See package documentation:
@@ -170,5 +265,4 @@ See package documentation:
 [![GoDoc](https://godoc.org/github.com/pmoule/go2hal/hal?status.svg)](https://godoc.org/github.com/pmoule/go2hal/hal)
 
 ## Todo
-- provide better examples for usage
 - howto: download
