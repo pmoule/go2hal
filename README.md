@@ -20,6 +20,11 @@ to produce **JSON** output as proposed in [JSON Hypertext Application Language](
 
 
 ##Usage
+###Preliminary stuff
+Download and install `go2hal` into your GOPATH.
+```
+go get github.com/pmoule/go2hal
+```
 Import the `hal` package to get started.
 ```go
 import "github.com/pmoule/go2hal/hal"
@@ -30,6 +35,8 @@ First create a Resource Object as your HAL document's root element.
 root := hal.NewResourceObject()
 ```
 This is all you need, to create a valid HAL document.
+
+Next, create an `Encoder` and call it's `ToJSON` function to generate valid JSON.
 ```go
 encoder := new(hal.Encoder)
 bytes, error := encoder.ToJSON(root)
@@ -264,5 +271,5 @@ See package documentation:
 
 [![GoDoc](https://godoc.org/github.com/pmoule/go2hal/hal?status.svg)](https://godoc.org/github.com/pmoule/go2hal/hal)
 
-## Todo
-- howto: download
+##License
+`go2hal` is released under MIT license. See [LICENSE](LICENSE.txt).
