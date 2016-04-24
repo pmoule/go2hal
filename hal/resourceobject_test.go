@@ -1,4 +1,4 @@
-// go2hal v0.1.0
+// go2hal v0.2.0
 // Copyright (c) 2016 Patrick Moule
 // License: MIT
 
