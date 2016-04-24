@@ -6,14 +6,14 @@ to produce **JSON** output as proposed in [JSON Hypertext Application Language](
 ##Features
 - HAL API
     - Create root **Resource Object**.
-    - Supports "_links" property
+    - Supports "_links" property.
 
         Define **Link Relations** and assign **Link Object** value(s).
 
-    - Supports "_embedded" property:
+    - Supports "_embedded" property.
 
         Define **Link Relations** and assign **Resource Object** value(s).
-    - Supports "curies"
+    - Supports "curies".
 
         Define CURIE **Link Objects** and assign to defined **Link Relations**.
 - JSON generator to produce HAL Document
@@ -56,6 +56,11 @@ self.SetLink(link)
 
 root.AddLink(self)
 ```
+Since `self` is a IANA registered link relation name, **go2hal** provides a shortcut
+```go
+self := hal.NewSelfLinkRelation()
+```
+
 Generated JSON
 ```
 {
