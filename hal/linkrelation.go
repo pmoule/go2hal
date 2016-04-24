@@ -4,7 +4,10 @@
 
 package hal
 
-import "errors"
+import (
+	"errors"
+	"github.com/pmoule/go2hal/hal/relationtype"
+)
 
 // Relation provides a descriptive name to add a meaning to
 // links. To create a more discoverable API, a Relation
@@ -55,6 +58,14 @@ func newRelation(name string) (*linkRelation, error) {
 // NewLinkRelation initializes a valid Link Relation for Link Object assignment.
 func NewLinkRelation(name string) (LinkRelation, error) {
 	return newRelation(name)
+}
+
+// NewSelfLinRelation initializes a valid Link Relation used for targeting
+// the URI of the resource it is attached to.
+// See http://www.iana.org/assignments/link-relations/link-relations.xhtml.
+func NewSelfLinkRelation() LinkRelation {
+	relation, _ := NewLinkRelation(relationtype.Self)
+	return relation
 }
 
 // NewResourceRelation initializes a valid link relation for Resource Object assignment.
@@ -151,7 +162,7 @@ func (l links) ToMap() NamedMap {
 		}
 	}
 
-	return NamedMap{Name: "_links", Content: linkMap}
+	return NamedMap{Name: LinksProperty, Content: linkMap}
 }
 
 type embeddedResources map[string]ResourceRelation
@@ -182,5 +193,5 @@ func (er embeddedResources) ToMap() NamedMap {
 		}
 	}
 
-	return NamedMap{Name: "_embedded", Content:  embeddedMap}
+	return NamedMap{Name: EmbeddedProperty, Content:  embeddedMap}
 }

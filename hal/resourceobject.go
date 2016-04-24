@@ -1,8 +1,10 @@
-// go2hal v0.1.0
+// go2hal v0.2.0
 // Copyright (c) 2016 Patrick Moule
 // License: MIT
 
 package hal
+
+import "github.com/pmoule/go2hal/hal/relationtype"
 
 // Resource is the root element of a HAL document.
 // A Resource can
@@ -42,7 +44,7 @@ func (r *resourceObject) EmbeddedResources() NamedMap {
 }
 
 func (r *resourceObject) ToMap() NamedMap {
-	resourceMap := make(map[string]interface{})
+	propertyMap := PropertyMap{}
 
 	mappers := []mapper{&r.links, &r.embedded}
 
@@ -50,19 +52,19 @@ func (r *resourceObject) ToMap() NamedMap {
 		namedMap := mapper.ToMap()
 
 		if len(namedMap.Content) > 0 {
-			resourceMap[namedMap.Name] = namedMap.Content
+			propertyMap[namedMap.Name] = namedMap.Content
 		}
 	}
 
 	for key, val := range r.data {
-		resourceMap[key] = val
+		propertyMap[key] = val
 	}
 
-	return NamedMap{Name: "root", Content: resourceMap}
+	return NamedMap{Name: "root", Content: propertyMap}
 }
 
 func (r *resourceObject) AddCurieLinks(linkObjects []*LinkObject) {
-	rel, _ := NewLinkRelation("curies")
+	rel, _ := NewLinkRelation(relationtype.CURIES)
 	rel.SetLinks(linkObjects)
 	r.AddLink(rel)
 }
