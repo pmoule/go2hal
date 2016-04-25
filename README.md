@@ -158,7 +158,7 @@ Generated JSON
 }
 ```
 ###CURIEs
-A Resource Object can have a set if CURIE links. Same for used Link Relations, that are capable of setting
+A Resource Object can have a set of CURIE links. Same for used Link Relations, that are capable of setting
 a CURIE link.
 ```go
 curieLink, _ := hal.NewCurieLink("doc", "http://example.com/docs/relations/{rel}")
