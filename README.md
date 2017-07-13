@@ -3,7 +3,7 @@ A **Go** implementation of **Hypertext Application Language (HAL)**.
 It provides essential data structures and features a JSON generator
 to produce **JSON** output as proposed in [JSON Hypertext Application Language](https://tools.ietf.org/html/draft-kelly-json-hal).
 
-##Features
+## Features
 - HAL API
     - Create root **Resource Object**.
     - Supports "_links" property.
@@ -19,8 +19,8 @@ to produce **JSON** output as proposed in [JSON Hypertext Application Language](
 - JSON generator to produce HAL Document
 
 
-##Usage
-###Preliminary stuff
+## Usage
+### Preliminary stuff
 Download and install `go2hal` into your GOPATH.
 ```
 go get github.com/pmoule/go2hal
@@ -29,7 +29,7 @@ Import the `hal` package to get started.
 ```go
 import "github.com/pmoule/go2hal/hal"
 ```
-###Create a Resource and JSON generation
+### Create a Resource and JSON generation
 First create a Resource Object as your HAL document's root element.
 ```go
 root := hal.NewResourceObject()
@@ -46,7 +46,7 @@ The generated JSON is
 {}
 ```
 There's potential for more :smile:
-###Add a Link Relation
+### Add a Link Relation
 So let's add a `self` Link Relation. Additionally we attach a single Link Object.
 ```go
 link := &hal.LinkObject{ Href: "/docwhoapi/doctors"}
@@ -71,7 +71,7 @@ Generated JSON
     }
 }
 ```
-###Resource state
+### Resource state
 To add some resource state, you can add some properties.
 These properties must be valid JSON
 
@@ -91,7 +91,7 @@ Generated JSON
     "doctorCount": 12
 }
 ```
-###Embedding Resources
+### Embedding Resources
 Now, let's embed some resources.
 ```go
 // a simple struct for actors of the doctor
@@ -157,7 +157,7 @@ Generated JSON
     "doctorCount": 12
 }
 ```
-###CURIEs
+### CURIEs
 A Resource Object can have a set of CURIE links. Same for used Link Relations, that are capable of setting
 a CURIE link.
 ```go
@@ -205,7 +205,7 @@ Generated JSON
     "doctorCount": 12
 }
 ```
-###Relations and the array vs single value discussion
+### Relations and the array vs single value discussion
 I'm aware of existing discussions regarding Relations and the type of assigned values.
 I simply deal with this topic by leaving the decision to the developer whether to
 assign a single value or an array value.
@@ -271,10 +271,10 @@ Generated JSON
 CURIEs are an exception to this. As stated in the [specification](https://tools.ietf.org/html/draft-kelly-json-hal#section-8.2)
 CURIEs are always an array of Link Objects.
 
-##Documentation
+## Documentation
 See package documentation:
 
 [![GoDoc](https://godoc.org/github.com/pmoule/go2hal/hal?status.svg)](https://godoc.org/github.com/pmoule/go2hal/hal)
 
-##License
+## License
 `go2hal` is released under MIT license. See [LICENSE](LICENSE.txt).
