@@ -117,8 +117,8 @@ for _, actor := range actors {
 
     embeddedActor := hal.NewResourceObject()
     embeddedActor.AddLink(self)
-    embeddedActors = append(embeddedActors, embeddedActor)
     embeddedActor.Data()["name"] = actor.Name
+    embeddedActors = append(embeddedActors, embeddedActor)
 }
 
 doctors, _ := hal.NewResourceRelation("doctors")
@@ -210,7 +210,7 @@ I'm aware of existing discussions regarding Relations and the type of assigned v
 I simply deal with this topic by leaving the decision to the developer whether to
 assign a single value or an array value.
 
-**go2hal** provides a `LinkRelaton` and a `ResourceRelation`. Both are capable of holding
+**go2hal** provides a `LinkRelation` and a `ResourceRelation`. Both are capable of holding
 a single value or an array value by providing special setter functions.
 
 **Example**
