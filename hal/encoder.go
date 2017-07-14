@@ -10,12 +10,27 @@ import (
 )
 
 // Encoder to encode a Resource Object into a valid HAL document.
-type Encoder struct {
+type Encoder interface {
+	ToJSON(resource Resource) ([]byte, error)
 }
 
-// ToJSON generates a HAL document from given Reosurce Object.
-// The output media type is "application/hal+json"
-func (enc *Encoder) ToJSON(resource Resource) ([]byte, error) {
+type standardEncoder struct {
+}
+
+type advancedEncoder struct {
+	standardEncoder
+}
+
+func NewEncoder() Encoder {
+	return new(standardEncoder)
+}
+
+func NewAdvancedEncoder() Encoder {
+	return new(advancedEncoder)
+}
+
+// ToJSON generates a HAL document from given Resource Object.
+func (enc *standardEncoder) ToJSON(resource Resource) ([]byte, error) {
 	if mapper, ok := resource.(mapper); ok {
 		namedMap := mapper.ToMap()
 		return json.Marshal(namedMap.Content)
