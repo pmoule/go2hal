@@ -153,7 +153,7 @@ func TestAddData(t *testing.T) {
 	}
 
 	type Test2 struct {
-		F string `json:"e"`
+		F string `json:"f"`
 	}
 
 	type Test1 struct {
@@ -165,7 +165,7 @@ func TestAddData(t *testing.T) {
 		E int    `json:"-"`
 	}
 
-	test := Test1{Test2{"E"}, "A", "B", "C", 0, 1}
+	test := Test1{Test2{"F"}, "A", "B", "C", 0, 1}
 	resource.AddData(test)
 
 	if count := len(data); count != 1 {
@@ -174,5 +174,15 @@ func TestAddData(t *testing.T) {
 
 	if val, ok := data["a"]; !ok && val != "A" {
 		t.Errorf("Expected key %s with value %s in data", "a", "A")
+	}
+
+	resource.AddData(&test)
+
+	if count := len(data); count != 2 {
+		t.Errorf("Data amount %d, want %d", count, 2)
+	}
+
+	if val, ok := data["f"]; !ok && val != "F" {
+		t.Errorf("Expected key %s with value %s in data", "f", "F")
 	}
 }
