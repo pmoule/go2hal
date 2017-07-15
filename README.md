@@ -38,7 +38,7 @@ This is all you need, to create a valid HAL document.
 
 Next, create an `Encoder` and call it's `ToJSON` function to generate valid JSON.
 ```go
-encoder := new(hal.Encoder)
+encoder := hal.NewEncoder()
 bytes, error := encoder.ToJSON(root)
 ```
 The generated JSON is
