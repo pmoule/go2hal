@@ -88,15 +88,40 @@ func (r *resourceObject) readDataFields(v reflect.Value) {
 		tokens := strings.Split(jsonValue, ",")
 		fieldName := tokens[0]
 		omitEmpty := len(tokens) > 1 && strings.TrimSpace(tokens[1]) == "omitempty"
-		value := vField.Interface()
-		isZeroValue := value == reflect.Zero(reflect.TypeOf(value)).Interface()
+		isZeroValue := isZeroValue(vField) //value == reflect.Zero(reflect.TypeOf(value)).Interface()
 
 		if omitEmpty && isZeroValue {
 			continue
 		}
 
-		r.data[fieldName] = value
+		r.data[fieldName] = vField.Interface()
 	}
+}
+
+func isZeroValue(val reflect.Value) bool {
+	switch val.Kind() {
+	case reflect.Func, reflect.Map, reflect.Slice:
+		return val.IsNil()
+	case reflect.Struct:
+		isZero := true
+
+		for i := 0; i < val.NumField(); i++ {
+			isZero = isZero && isZeroValue(val.Field(i))
+		}
+		return isZero
+	case reflect.Array:
+		isZero := true
+
+		for i := 0; i < val.Len(); i++ {
+			isZero = isZero && isZeroValue(val.Index(i))
+		}
+		return isZero
+	}
+
+	value := val.Interface()
+	zeroValue := reflect.Zero(val.Type()).Interface()
+
+	return value == zeroValue
 }
 
 func (r *resourceObject) Links() NamedMap {
