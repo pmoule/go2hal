@@ -32,7 +32,7 @@ type resourceObject struct {
 	embedded embeddedResources `json:"_embedded,omitempty"`
 }
 
-// NewResourceObject initializes a valid Resource.
+// NewResourceObject initialises a valid Resource.
 func NewResourceObject() Resource {
 	return &resourceObject{data: PropertyMap{}, links: links{}, embedded: embeddedResources{}}
 }

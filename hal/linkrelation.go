@@ -61,7 +61,7 @@ func NewLinkRelation(name string) (LinkRelation, error) {
 	return newRelation(name)
 }
 
-// NewSelfLinRelation initializes a valid Link Relation used for targeting
+// NewSelfLinkRelation initializes a valid Link Relation used for targeting
 // the URI of the resource it is attached to.
 // See http://www.iana.org/assignments/link-relations/link-relations.xhtml.
 func NewSelfLinkRelation() LinkRelation {
