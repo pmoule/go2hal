@@ -91,13 +91,42 @@ Generated JSON
     "doctorCount": 12
 }
 ```
+It might be a bit cumbersome to manually map all properties from
+any of your DTOs. There is a more convenient way.
+```go
+// a simple struct
+type DoctorsInfo struct {
+    Content     string  `json:"content"`
+    DoctorCount int     `json:"doctorCount"` 
+    From        string  `json:"from"`
+    Until       string  `json:"until"`
+}
+
+info := DoctorsInfo{12, "All actors of the Doctor.", "1963", "today"}
+root.AddData(info)
+```
+Generated JSON
+```
+{
+    "_links": {
+        "self": {
+            "href": "/docwhoapi/doctors"
+        }
+    },
+    "content": "All actors of the Doctor."
+    "doctorCount": 12,
+    "from": "1963"
+    "until": "today"
+}
+```
+Both ways of adding state can be combined. But already existing properties are replaced.
 ### Embedding Resources
 Now, let's embed some resources.
 ```go
 // a simple struct for actors of the doctor
 type Actor struct {
-    Id int
-    Name string
+    ID   int    `json:"-"`
+    Name string `json:"name"`
 }
 
 actors := []Actor {
@@ -109,7 +138,7 @@ actors := []Actor {
 var embeddedActors []hal.Resource
 
 for _, actor := range actors {
-    href := fmt.Sprintf("/docwhoapi/doctors/%d", actor.Id)
+    href := fmt.Sprintf("/docwhoapi/doctors/%d", actor.ID)
     selfLink, _ := hal.NewLinkObject(href)
 
     self, _ := hal.NewLinkRelation("self")
@@ -117,7 +146,7 @@ for _, actor := range actors {
 
     embeddedActor := hal.NewResourceObject()
     embeddedActor.AddLink(self)
-    embeddedActor.Data()["name"] = actor.Name
+    embeddedActor.AddData(actor)
     embeddedActors = append(embeddedActors, embeddedActor)
 }
 
@@ -154,7 +183,10 @@ Generated JSON
             }
         ]
     },
-    "doctorCount": 12
+    "content": "All actors of the Doctor."
+    "doctorCount": 12,
+    "from": "1963"
+    "until": "today"
 }
 ```
 ### CURIEs
