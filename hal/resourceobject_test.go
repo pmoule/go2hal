@@ -154,22 +154,23 @@ func TestAddData(t *testing.T) {
 
 	type Test2 struct {
 		F string `json:"f"`
+		g string
 	}
 
 	type Test1 struct {
 		Test2
 		A string `json:"a"`
-		b string `json:"b"`
-		c string `json:"-"`
-		D int    `json:"d, omitempty"`
-		E int    `json:"-"`
+		b string
+		c string
+		D int `json:"d, omitempty"`
+		E int `json:"-"`
 	}
 
-	test := Test1{Test2{"F"}, "A", "B", "C", 0, 1}
+	test := Test1{Test2{"F", "G"}, "A", "B", "C", 0, 1}
 	resource.AddData(test)
 
-	if count := len(data); count != 1 {
-		t.Errorf("Data amount %d, want %d", count, 1)
+	if count := len(data); count != 2 {
+		t.Errorf("Data amount %d, want %d", count, 2)
 	}
 
 	if val, ok := data["a"]; !ok && val != "A" {

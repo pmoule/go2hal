@@ -65,16 +65,18 @@ func (r *resourceObject) readDataFields(v reflect.Value) {
 		tField := vType.Field(i)
 		vField := v.Field(i)
 
+		if !vField.CanInterface() {
+			continue
+		}
+
 		if tField.Anonymous {
 			if !vField.CanAddr() {
+				anonymValue := reflect.ValueOf(vField.Interface())
+				r.readDataFields(anonymValue)
 				continue
 			}
 
 			r.readDataFields(vField.Addr())
-		}
-
-		if !vField.CanInterface() {
-			continue
 		}
 
 		jsonValue, ok := tField.Tag.Lookup("json")
