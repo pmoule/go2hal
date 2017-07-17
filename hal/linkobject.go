@@ -1,5 +1,5 @@
-// go2hal v0.2.0
-// Copyright (c) 2016 Patrick Moule
+// go2hal v0.3.0
+// Copyright (c) 2017 Patrick Moule
 // License: MIT
 
 package hal
@@ -12,7 +12,7 @@ import "errors"
 // property description.
 type LinkObject struct {
 	Href        string `json:"href,omitempty"`        //required
-	Templated   bool `json:"templated,omitempty"`     //optional
+	Templated   bool   `json:"templated,omitempty"`   //optional
 	Type        string `json:"type,omitempty"`        //optional
 	Deprecation string `json:"deprecation,omitempty"` //optional
 	Name        string `json:"name,omitempty"`        //optional

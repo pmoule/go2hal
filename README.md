@@ -385,7 +385,7 @@ Generated JSON
 ## Documentation
 See package documentation:
 
-[![GoDoc](https://godoc.org/github.com/pmoule/go2hal/hal?status.svg)](https://godoc.org/github.com/pmoule/go2hal/hal)
+[![GoDoc](https://godoc.org/github.com/pmoule/go2hal?status.svg)](https://godoc.org/github.com/pmoule/go2hal)
 
 ## License
 `go2hal` is released under MIT license. See [LICENSE](LICENSE.txt).
