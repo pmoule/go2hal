@@ -88,7 +88,7 @@ func (r *resourceObject) readDataFields(v reflect.Value) {
 		tokens := strings.Split(jsonValue, ",")
 		fieldName := tokens[0]
 		omitEmpty := len(tokens) > 1 && strings.TrimSpace(tokens[1]) == "omitempty"
-		isZeroValue := isZeroValue(vField) //value == reflect.Zero(reflect.TypeOf(value)).Interface()
+		isZeroValue := isZeroValue(vField)
 
 		if omitEmpty && isZeroValue {
 			continue

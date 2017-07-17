@@ -152,9 +152,15 @@ func TestAddData(t *testing.T) {
 		t.Errorf("Data amount %d, want %d", count, 0)
 	}
 
+	type Test3 struct {
+		J string `json:"j, omitempty"`
+	}
+
 	type Test2 struct {
 		F string `json:"f"`
 		g string
+		H Test3  `json:"h"`
+		I [2]int `json:"i, omitempty"`
 	}
 
 	type Test1 struct {
@@ -166,11 +172,14 @@ func TestAddData(t *testing.T) {
 		E int `json:"-"`
 	}
 
-	test := Test1{Test2{"F", "G"}, "A", []string{"B"}, "C", 0, 1}
+	test2 := new(Test2)
+	test2.F = "F"
+	test2.g = "G"
+	test := Test1{*test2, "A", []string{"B"}, "C", 0, 1}
 	resource.AddData(test)
 
-	if count := len(data); count != 3 {
-		t.Errorf("Data amount %d, want %d", count, 3)
+	if count := len(data); count != 4 {
+		t.Errorf("Data amount %d, want %d", count, 4)
 	}
 
 	if val, ok := data["a"]; !ok && val != "A" {
@@ -179,8 +188,8 @@ func TestAddData(t *testing.T) {
 
 	resource.AddData(&test)
 
-	if count := len(data); count != 3 {
-		t.Errorf("Data amount %d, want %d", count, 3)
+	if count := len(data); count != 4 {
+		t.Errorf("Data amount %d, want %d", count, 4)
 	}
 
 	if val, ok := data["f"]; !ok && val != "F" {
