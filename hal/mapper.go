@@ -4,10 +4,6 @@
 
 package hal
 
-type mapper interface {
-	ToMap() NamedMap
-}
-
 // NamedMap simply links a name with PropertyMap
 type NamedMap struct {
 	Name    string

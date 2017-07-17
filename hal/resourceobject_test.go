@@ -5,9 +5,8 @@
 package hal
 
 import (
-	"testing"
-	"fmt"
 	"reflect"
+	"testing"
 )
 
 func TestNewResource(t *testing.T) {
@@ -109,17 +108,91 @@ func TestAddCurieLink(t *testing.T) {
 	}
 
 	if curieLink != result[0] {
-		t.Errorf("CurieLink == %q, want %q", val, curieLink)
+		t.Errorf("CurieLink == %+v, want %+v", val, curieLink)
 	}
 
 	curieLink2, _ := NewCurieLink(curieName, curieHref)
 	resourceObject.AddCurieLinks([]*LinkObject{curieLink, curieLink2})
 
-	fmt.Println("length: " + string(len(resourceObject.Links().Content)))
 	val2 := resourceObject.Links().Content["curies"]
 	result2, _ := val2.([]*LinkObject)
 
 	if count := len(result2); count != 2 {
 		t.Errorf("CurieLink count == %d, want %d", count, 2)
+	}
+}
+
+func TestAddData(t *testing.T) {
+	resource := NewResourceObject()
+
+	data := resource.Data()
+
+	if count := len(data); count != 0 {
+		t.Errorf("Initial data amount %d, want %d", count, 0)
+	}
+
+	data["test"] = "test"
+
+	if count := len(data); count != 1 {
+		t.Errorf("Data amount %d, want %d", count, 1)
+	}
+
+	delete(data, "test")
+
+	if count := len(data); count != 0 {
+		t.Errorf("Data amount %d, want %d", count, 0)
+	}
+
+	resource.AddData(nil)
+	resource.AddData("test")
+	resource.AddData(true)
+	resource.AddData(1)
+
+	if count := len(data); count != 0 {
+		t.Errorf("Data amount %d, want %d", count, 0)
+	}
+
+	type Test3 struct {
+		J string `json:"j, omitempty"`
+	}
+
+	type Test2 struct {
+		F string `json:"f"`
+		g string
+		H Test3  `json:"h"`
+		I [2]int `json:"i, omitempty"`
+	}
+
+	type Test1 struct {
+		Test2
+		A string   `json:"a"`
+		B []string `json:"b"`
+		c string
+		D int `json:"d, omitempty"`
+		E int `json:"-"`
+	}
+
+	test2 := new(Test2)
+	test2.F = "F"
+	test2.g = "G"
+	test := Test1{*test2, "A", []string{"B"}, "C", 0, 1}
+	resource.AddData(test)
+
+	if count := len(data); count != 4 {
+		t.Errorf("Data amount %d, want %d", count, 4)
+	}
+
+	if val, ok := data["a"]; !ok && val != "A" {
+		t.Errorf("Expected key %s with value %s in data", "a", "A")
+	}
+
+	resource.AddData(&test)
+
+	if count := len(data); count != 4 {
+		t.Errorf("Data amount %d, want %d", count, 4)
+	}
+
+	if val, ok := data["f"]; !ok && val != "F" {
+		t.Errorf("Expected key %s with value %s in data", "f", "F")
 	}
 }

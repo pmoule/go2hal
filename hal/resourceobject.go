@@ -4,7 +4,12 @@
 
 package hal
 
-import "github.com/pmoule/go2hal/hal/relationtype"
+import (
+	"reflect"
+	"strings"
+
+	"github.com/pmoule/go2hal/hal/relationtype"
+)
 
 // Resource is the root element of a HAL document.
 // A Resource can
@@ -15,24 +20,108 @@ type Resource interface {
 	Data() PropertyMap
 	Links() NamedMap
 	EmbeddedResources() NamedMap
+	AddData(interface{})
 	AddLink(LinkRelation)
 	AddResource(ResourceRelation)
 	AddCurieLinks([]*LinkObject)
 }
 
 type resourceObject struct {
-	data     PropertyMap `json:"-"`
-	links    links `json:"_links,omitempty"`
+	data     PropertyMap       `json:"-"`
+	links    links             `json:"_links,omitempty"`
 	embedded embeddedResources `json:"_embedded,omitempty"`
 }
 
-// NewResourceObject initializes a valid Resource.
+// NewResourceObject initialises a valid Resource.
 func NewResourceObject() Resource {
 	return &resourceObject{data: PropertyMap{}, links: links{}, embedded: embeddedResources{}}
 }
 
 func (r *resourceObject) Data() PropertyMap {
 	return r.data
+}
+
+func (r *resourceObject) AddData(data interface{}) {
+	if data == nil {
+		return
+	}
+
+	r.readDataFields(reflect.ValueOf(data))
+}
+
+func (r *resourceObject) readDataFields(v reflect.Value) {
+	vType := v.Type()
+
+	if vType.Kind() == reflect.Ptr {
+		vType = vType.Elem()
+		v = v.Elem()
+	}
+
+	if vType.Kind() != reflect.Struct {
+		return
+	}
+
+	for i := 0; i < vType.NumField(); i++ {
+		tField := vType.Field(i)
+		vField := v.Field(i)
+
+		if !vField.CanInterface() {
+			continue
+		}
+
+		if tField.Anonymous {
+			if !vField.CanAddr() {
+				anonymValue := reflect.ValueOf(vField.Interface())
+				r.readDataFields(anonymValue)
+				continue
+			}
+
+			r.readDataFields(vField.Addr())
+		}
+
+		jsonValue, ok := tField.Tag.Lookup("json")
+
+		if !ok || jsonValue == "-" {
+			continue
+		}
+
+		tokens := strings.Split(jsonValue, ",")
+		fieldName := tokens[0]
+		omitEmpty := len(tokens) > 1 && strings.TrimSpace(tokens[1]) == "omitempty"
+		isZeroValue := isZeroValue(vField)
+
+		if omitEmpty && isZeroValue {
+			continue
+		}
+
+		r.data[fieldName] = vField.Interface()
+	}
+}
+
+func isZeroValue(val reflect.Value) bool {
+	switch val.Kind() {
+	case reflect.Func, reflect.Map, reflect.Slice:
+		return val.IsNil()
+	case reflect.Struct:
+		isZero := true
+
+		for i := 0; i < val.NumField(); i++ {
+			isZero = isZero && isZeroValue(val.Field(i))
+		}
+		return isZero
+	case reflect.Array:
+		isZero := true
+
+		for i := 0; i < val.Len(); i++ {
+			isZero = isZero && isZeroValue(val.Index(i))
+		}
+		return isZero
+	}
+
+	value := val.Interface()
+	zeroValue := reflect.Zero(val.Type()).Interface()
+
+	return value == zeroValue
 }
 
 func (r *resourceObject) Links() NamedMap {
@@ -44,23 +133,23 @@ func (r *resourceObject) EmbeddedResources() NamedMap {
 }
 
 func (r *resourceObject) ToMap() NamedMap {
-	propertyMap := PropertyMap{}
+	properties := PropertyMap{}
 
-	mappers := []mapper{&r.links, &r.embedded}
+	namedMaps := []NamedMap{}
+	namedMaps = append(namedMaps, r.Links())
+	namedMaps = append(namedMaps, r.EmbeddedResources())
 
-	for _, mapper := range mappers {
-		namedMap := mapper.ToMap()
-
+	for _, namedMap := range namedMaps {
 		if len(namedMap.Content) > 0 {
-			propertyMap[namedMap.Name] = namedMap.Content
+			properties[namedMap.Name] = namedMap.Content
 		}
 	}
 
 	for key, val := range r.data {
-		propertyMap[key] = val
+		properties[key] = val
 	}
 
-	return NamedMap{Name: "root", Content: propertyMap}
+	return NamedMap{Name: "root", Content: properties}
 }
 
 func (r *resourceObject) AddCurieLinks(linkObjects []*LinkObject) {

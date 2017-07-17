@@ -8,7 +8,7 @@ import "errors"
 
 // LinkObject is a hyperlink from the Resource it is attached to.
 // A valid LinkObject requires a href value. All other properties are optional.
-// See https://tools.ietf.org/html/draft-kelly-json-hal-07 for
+// See https://tools.ietf.org/html/draft-kelly-json-hal for
 // property description.
 type LinkObject struct {
 	Href        string `json:"href,omitempty"`        //required

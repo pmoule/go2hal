@@ -1,4 +1,4 @@
-// go2hal v0.1.0
+// go2hal v0.2.0
 // Copyright (c) 2016 Patrick Moule
 // License: MIT
 
@@ -6,6 +6,7 @@ package hal
 
 import (
 	"errors"
+
 	"github.com/pmoule/go2hal/hal/relationtype"
 )
 
@@ -60,7 +61,7 @@ func NewLinkRelation(name string) (LinkRelation, error) {
 	return newRelation(name)
 }
 
-// NewSelfLinRelation initializes a valid Link Relation used for targeting
+// NewSelfLinkRelation initializes a valid Link Relation used for targeting
 // the URI of the resource it is attached to.
 // See http://www.iana.org/assignments/link-relations/link-relations.xhtml.
 func NewSelfLinkRelation() LinkRelation {
@@ -148,50 +149,49 @@ func (lr *linkRelation) IsResourceSet() bool {
 type links map[string]LinkRelation
 
 func (l links) ToMap() NamedMap {
-	linkMap := PropertyMap{}
+	properties := PropertyMap{}
 
 	for _, val := range l {
 		if val.IsLinkSet() {
-			linkMap[val.FullName()] = val.Links()
+			properties[val.FullName()] = val.Links()
 		} else {
 			if len(val.Links()) > 0 {
-				linkMap[val.FullName()] = val.Links()[0]
+				properties[val.FullName()] = val.Links()[0]
 			} else {
-				linkMap[val.FullName()] = nil
+				properties[val.FullName()] = nil
 			}
 		}
 	}
 
-	return NamedMap{Name: LinksProperty, Content: linkMap}
+	return NamedMap{Name: LinksProperty, Content: properties}
 }
 
 type embeddedResources map[string]ResourceRelation
 
 func (er embeddedResources) ToMap() NamedMap {
-	embeddedMap := PropertyMap{}
+	embeddedProperties := PropertyMap{}
 
 	for _, val := range er {
 		resources := val.Resources()
 
-		var propertyMaps []PropertyMap
+		var properties []PropertyMap
 
 		for _, resource := range resources {
-			if mapper, ok := resource.(mapper); ok {
-				namedMap := mapper.ToMap()
-				propertyMaps = append(propertyMaps, namedMap.Content)
-			}
+			resourceObject := resource.(*resourceObject)
+			namedMap := resourceObject.ToMap()
+			properties = append(properties, namedMap.Content)
 		}
 
 		if val.IsResourceSet() {
-			embeddedMap[val.FullName()] = propertyMaps
+			embeddedProperties[val.FullName()] = properties
 		} else {
-			if len(propertyMaps) > 0 {
-				embeddedMap[val.FullName()] = propertyMaps[0]
+			if len(properties) > 0 {
+				embeddedProperties[val.FullName()] = properties[0]
 			} else {
-				embeddedMap[val.FullName()] = nil
+				embeddedProperties[val.FullName()] = nil
 			}
 		}
 	}
 
-	return NamedMap{Name: EmbeddedProperty, Content:  embeddedMap}
+	return NamedMap{Name: EmbeddedProperty, Content: embeddedProperties}
 }

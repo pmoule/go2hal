@@ -1,2 +1,4 @@
 go2hal.iml
 .idea/**
+hal/cover.out
+hal/debug.test
