@@ -32,8 +32,18 @@ func NewResourceFactory(curieLinks []*LinkObject) ResourceFactory {
 // be added by curieLinkName. The real CURIE link is picked from the set of CURIE links the factory
 // is initialised with.
 func (rf *resourceFactory) CreateLink(relationName string, href string, curieLinkName string) LinkRelation {
-	link, _ := NewLinkObject(href)
-	relation, _ := NewLinkRelation(relationName)
+	link, linkError := NewLinkObject(href)
+
+	if linkError != nil {
+		return nil
+	}
+
+	relation, relationError := NewLinkRelation(relationName)
+
+	if relationError != nil {
+		return nil
+	}
+
 	relation.SetLink(link)
 
 	if curieLinkName != "" {
@@ -51,7 +61,11 @@ func (rf *resourceFactory) CreateLink(relationName string, href string, curieLin
 // be added by curieLinkName. The real CURIE link is picked from the set of CURIE links the factory
 // is initialised with.
 func (rf *resourceFactory) CreateResourceLink(relationName string, curieLinkName string) ResourceRelation {
-	relation, _ := NewResourceRelation(relationName)
+	relation, relationError := NewResourceRelation(relationName)
+
+	if relationError != nil {
+		return nil
+	}
 
 	if curieLinkName != "" {
 		curieLink := rf.curieLinks[curieLinkName]
@@ -88,11 +102,15 @@ func (rf *resourceFactory) CreateEmbeddedResource(href string) Resource {
 }
 
 func (rf *resourceFactory) createResource(href string) Resource {
-	selfLink, _ := NewLinkObject(href)
+	resource := NewResourceObject()
+	selfLink, err := NewLinkObject(href)
+
+	if err != nil {
+		return resource
+	}
+
 	self := NewSelfLinkRelation()
 	self.SetLink(selfLink)
-
-	resource := NewResourceObject()
 	resource.AddLink(self)
 
 	return resource
