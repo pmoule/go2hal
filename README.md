@@ -17,6 +17,7 @@ to produce **JSON** output as proposed in [JSON Hypertext Application Language](
 
         Define CURIE **Link Objects** and assign to defined **Link Relations**.
 - JSON generator to produce HAL Document
+- Tools to simplify HAL document creation
 
 
 ## Usage
@@ -190,8 +191,7 @@ Generated JSON
 }
 ```
 ### CURIEs
-A Resource Object can have a set of CURIE links. Same for used Link Relations, that are capable of setting
-a CURIE link.
+A Resource Object can have a set of CURIE links. Same for used Link Relations, that are capable of setting a CURIE link.
 ```go
 curieLink, _ := hal.NewCurieLink("doc", "http://example.com/docs/relations/{rel}")
 curieLinks := []*hal.LinkObject {curieLink}
@@ -209,7 +209,7 @@ Generated JSON
                 "templated": true,
                 "name": "doc"
             }
-        ]
+        ],
         "self": {
             "href": "/docwhoapi/doctors"
         }
@@ -242,8 +242,7 @@ I'm aware of existing discussions regarding Relations and the type of assigned v
 I simply deal with this topic by leaving the decision to the developer whether to
 assign a single value or an array value.
 
-**go2hal** provides a `LinkRelation` and a `ResourceRelation`. Both are capable of holding
-a single value or an array value by providing special setter functions.
+**go2hal** provides a `LinkRelation` and a `ResourceRelation`. Both are capable of holding a single value or an array value by providing special setter functions.
 
 **Example**
 ```go
@@ -290,12 +289,12 @@ Generated JSON
         ]
     },
     "_embedded": {
-            "resourceRel": [
-                {
-                    "value": "myValue"
-                }
-            ]
-        },
+        "resourceRel": [
+            {
+                "value": "myValue"
+            }
+        ]
+    },
 }
 ```
 **go2hal** does not evaluate the assigned values. The developer is fully responsible of this.
@@ -303,6 +302,86 @@ Generated JSON
 CURIEs are an exception to this. As stated in the [specification](https://tools.ietf.org/html/draft-kelly-json-hal#section-8.2)
 CURIEs are always an array of Link Objects.
 
+### Tooling
+To simplify creating HAL documents, **go2hal** provides a `ResourceFactory`.
+Initialise it with a set of CURIE links.
+```go
+curieLink, _ := hal.NewCurieLink("doc", "http://example.com/docs/relations/{rel}")
+curieLinks := []*hal.LinkObject {curieLink}
+
+factory := NewResourceFactory(curieLinks)
+```
+Create a root resource with it's `self` link.
+```go
+self := "/docwhoapi/doctors"
+root := factory.CreateRootResource(self)
+```
+Generated JSON
+```
+{
+    "_links": {
+        "curies": [
+            {
+                "href": "http://example.com/docs/relations/{rel}",
+                "templated": true,
+                "name": "doc"
+            }
+        ],
+        "self": {
+            "href": "/docwhoapi/doctors"
+        }
+    }
+}
+```
+Create a link and an embedded resource and it's `ResourceRelation`.
+```go
+//assign a CURIE link by name
+companions := factory.CreateLink("companions", "/docwhoapi/companions", "doc")
+root.AddLink(companions)
+
+doctor := Actor{1, "William Hartnell"}
+embeddedSelf := fmt.Sprintf("/docwhoapi/doctors/%d", doctor.ID)
+embeddedDoctor := factory.CreateEmbeddedResource(embeddedSelf)
+embeddedDoctor.AddData(doctor)
+
+//assign a CURIE link by name
+doctorLink := factory.CreateResourceLink("hartnell", "doc")
+doctorLink.SetResource(doctor)
+
+root.AddResource(doctorLink)
+```
+Generated JSON
+```
+{
+    "_links": {
+        "curies": [
+            {
+                "href": "http://example.com/docs/relations/{rel}",
+                "templated": true,
+                "name": "doc"
+            }
+        ],
+        "doc:companions": {
+            "href": "/docwhoapi/companions"
+        },
+        "self": {
+            "href": "/docwhoapi/doctors"
+        }
+    },
+    "_embedded": {
+        "doc:hartnell": [
+            {
+                "_links": {
+                    "self": {
+                        "href": "/docwhoapi/doctors/1"
+                    }
+                },
+                "name": "William Hartnell"
+            }
+        ]
+    },
+}
+```
 ## Documentation
 See package documentation:
 
