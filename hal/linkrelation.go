@@ -1,4 +1,4 @@
-// go2hal v0.3.0
+// go2hal v0.3.2
 // Copyright (c) 2017 Patrick Moule
 // License: MIT
 
@@ -174,7 +174,7 @@ func (er embeddedResources) ToMap() NamedMap {
 	for _, val := range er {
 		resources := val.Resources()
 
-		var properties []PropertyMap
+		var properties = []PropertyMap{}
 
 		for _, resource := range resources {
 			resourceObject := resource.(*resourceObject)
