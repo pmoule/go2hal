@@ -7,6 +7,8 @@ package hal
 import (
 	"reflect"
 	"testing"
+
+	"github.com/pmoule/go2hal/hal/mapping"
 )
 
 func TestNewResource(t *testing.T) {
@@ -81,10 +83,10 @@ func TestAddResourceObject(t *testing.T) {
 		t.Errorf("LinkRelation %q does not exist", want)
 	}
 
-	_, isPropertyMap := val.(PropertyMap)
+	_, isPropertyMap := val.(mapping.PropertyMap)
 
 	if !isPropertyMap {
-		t.Errorf("LinkRelation value is %[1]T(%[1]p), want %[2]T(%[2]p)", val, PropertyMap{})
+		t.Errorf("LinkRelation value is %[1]T(%[1]p), want %[2]T(%[2]p)", val, mapping.PropertyMap{})
 	}
 }
 
@@ -124,7 +126,6 @@ func TestAddCurieLink(t *testing.T) {
 
 func TestAddData(t *testing.T) {
 	resource := NewResourceObject()
-
 	data := resource.Data()
 
 	if count := len(data); count != 0 {
@@ -152,19 +153,7 @@ func TestAddData(t *testing.T) {
 		t.Errorf("Data amount %d, want %d", count, 0)
 	}
 
-	type Test3 struct {
-		J string `json:"j, omitempty"`
-	}
-
-	type Test2 struct {
-		F string `json:"f"`
-		g string
-		H Test3  `json:"h"`
-		I [2]int `json:"i, omitempty"`
-	}
-
 	type Test1 struct {
-		Test2
 		A string   `json:"a"`
 		B []string `json:"b"`
 		c string
@@ -172,27 +161,18 @@ func TestAddData(t *testing.T) {
 		E int `json:"-"`
 	}
 
-	test2 := new(Test2)
-	test2.F = "F"
-	test2.g = "G"
-	test := Test1{*test2, "A", []string{"B"}, "C", 0, 1}
+	test := Test1{"A", []string{"B"}, "C", 0, 1}
 	resource.AddData(test)
 
-	if count := len(data); count != 4 {
-		t.Errorf("Data amount %d, want %d", count, 4)
+	if count := len(data); count != 2 {
+		t.Errorf("Data amount %d, want %d", count, 2)
 	}
 
 	if val, ok := data["a"]; !ok && val != "A" {
 		t.Errorf("Expected key %s with value %s in data", "a", "A")
 	}
 
-	resource.AddData(&test)
-
-	if count := len(data); count != 4 {
-		t.Errorf("Data amount %d, want %d", count, 4)
-	}
-
-	if val, ok := data["f"]; !ok && val != "F" {
-		t.Errorf("Expected key %s with value %s in data", "f", "F")
+	if val, ok := data["b"]; !ok && val != [1]string{"B"} {
+		t.Errorf("Expected key %s with value %s in data", "a", [1]string{"B"})
 	}
 }

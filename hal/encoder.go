@@ -23,8 +23,7 @@ func NewEncoder() Encoder {
 
 // ToJSON generates a HAL document from given Resource Object.
 func (enc *standardEncoder) ToJSON(resource Resource) ([]byte, error) {
-	resourceObject := resource.(*resourceObject)
-	namedMap := resourceObject.ToMap()
+	namedMap := resource.ToMap()
 
 	return json.Marshal(namedMap.Content)
 }
