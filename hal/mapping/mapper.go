@@ -43,12 +43,26 @@ func readDataFields(v reflect.Value) PropertyMap {
 
 	for i := 0; i < vType.NumField(); i++ {
 		vField := v.Field(i)
+		tField := vType.Field(i)
+
+		if vField.Kind() == reflect.Ptr {
+			vField = vField.Elem()
+		}
+
+		if !vField.IsValid() {
+			fieldName, omitEmpty, ok := readJSONInfo(tField)
+
+			if !ok || omitEmpty {
+				continue
+			}
+
+			propertyMap[fieldName] = nil
+			continue
+		}
 
 		if !vField.CanInterface() {
 			continue
 		}
-
-		tField := vType.Field(i)
 
 		if tField.Anonymous {
 			value := readEmbeddedField(vField)
@@ -68,16 +82,26 @@ func readDataFields(v reflect.Value) PropertyMap {
 	return propertyMap
 }
 
-func toJSONValue(tField reflect.StructField, vField reflect.Value) (string, interface{}, bool) {
+func readJSONInfo(tField reflect.StructField) (string, bool, bool) {
 	jsonValue, ok := tField.Tag.Lookup("json")
 
 	if !ok || jsonValue == "-" {
-		return "", nil, false
+		return "", true, false
 	}
 
 	tokens := strings.Split(jsonValue, ",")
 	omitEmpty := len(tokens) > 1 && strings.TrimSpace(tokens[1]) == "omitempty"
 	fieldName := tokens[0]
+
+	return fieldName, omitEmpty, true
+}
+
+func toJSONValue(tField reflect.StructField, vField reflect.Value) (string, interface{}, bool) {
+	fieldName, omitEmpty, ok := readJSONInfo(tField)
+
+	if !ok {
+		return "", nil, false
+	}
 
 	_, isTime := vField.Interface().(time.Time)
 

@@ -114,3 +114,39 @@ func TestMapData(t *testing.T) {
 		t.Errorf("Expected key %s in data", "test5")
 	}
 }
+
+func TestMapDataWithPointers(t *testing.T) {
+	type Test2 struct {
+		C string `json:"c"`
+	}
+
+	type Test1 struct {
+		*Test2
+		A *Test2 `json:"a"`
+		B *Test2 `json:"b, omitempty"`
+	}
+
+	test2 := new(Test2)
+	test2.C = "C"
+
+	test1 := &Test1{}
+	data := MapData(test1)
+
+	if count := len(data); count != 1 {
+		t.Errorf("Data amount %d, want %d", count, 1)
+	}
+
+	test1 = &Test1{Test2: test2}
+	data = MapData(test1)
+
+	if count := len(data); count != 2 {
+		t.Errorf("Data amount %d, want %d", count, 2)
+	}
+
+	test1 = &Test1{Test2: test2, A: test2, B: test2}
+	data = MapData(test1)
+
+	if count := len(data); count != 3 {
+		t.Errorf("Data amount %d, want %d", count, 3)
+	}
+}
