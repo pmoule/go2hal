@@ -1,10 +1,10 @@
-// go2hal v0.3.2
+// go2hal v0.3.3
 // Copyright (c) 2017 Patrick Moule
 // License: MIT
 
 package relationtype
 
-// CURIES provides a reserved name for CURIEs link relation typein HAL documents.
+// CURIES provides a reserved name for CURIEs link relation type in HAL documents.
 const CURIES string = "curies"
 
 // Self provides a reserved name for self link relation type in HAL documents.
