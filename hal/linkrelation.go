@@ -7,6 +7,7 @@ package hal
 import (
 	"errors"
 
+	"github.com/pmoule/go2hal/hal/mapping"
 	"github.com/pmoule/go2hal/hal/relationtype"
 )
 
@@ -148,8 +149,8 @@ func (lr *linkRelation) IsResourceSet() bool {
 
 type links map[string]LinkRelation
 
-func (l links) ToMap() NamedMap {
-	properties := PropertyMap{}
+func (l links) ToMap() mapping.NamedMap {
+	properties := mapping.PropertyMap{}
 
 	for _, val := range l {
 		if val.IsLinkSet() {
@@ -163,18 +164,18 @@ func (l links) ToMap() NamedMap {
 		}
 	}
 
-	return NamedMap{Name: LinksProperty, Content: properties}
+	return mapping.NamedMap{Name: LinksProperty, Content: properties}
 }
 
 type embeddedResources map[string]ResourceRelation
 
-func (er embeddedResources) ToMap() NamedMap {
-	embeddedProperties := PropertyMap{}
+func (er embeddedResources) ToMap() mapping.NamedMap {
+	embeddedProperties := mapping.PropertyMap{}
 
 	for _, val := range er {
 		resources := val.Resources()
 
-		var properties = []PropertyMap{}
+		var properties = []mapping.PropertyMap{}
 
 		for _, resource := range resources {
 			resourceObject := resource.(*resourceObject)
@@ -193,5 +194,5 @@ func (er embeddedResources) ToMap() NamedMap {
 		}
 	}
 
-	return NamedMap{Name: EmbeddedProperty, Content: embeddedProperties}
+	return mapping.NamedMap{Name: EmbeddedProperty, Content: embeddedProperties}
 }
