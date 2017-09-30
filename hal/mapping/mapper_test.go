@@ -116,18 +116,23 @@ func TestMapData(t *testing.T) {
 }
 
 func TestMapDataWithPointers(t *testing.T) {
+	type Test4 struct {
+		E string `json:"e, omitempty"`
+	}
+
+	type Test3 struct {
+		D string `json:"d, omitempty"`
+	}
+
 	type Test2 struct {
 		C string `json:"c"`
 	}
 
 	type Test1 struct {
 		*Test2
-		A *Test2 `json:"a"`
-		B *Test2 `json:"b, omitempty"`
+		A *Test3 `json:"a"`
+		B *Test4 `json:"b, omitempty"`
 	}
-
-	test2 := new(Test2)
-	test2.C = "C"
 
 	test1 := &Test1{}
 	data := MapData(test1)
@@ -136,6 +141,12 @@ func TestMapDataWithPointers(t *testing.T) {
 		t.Errorf("Data amount %d, want %d", count, 1)
 	}
 
+	if _, ok := data["a"]; !ok {
+		t.Errorf("Expected key %s in data", "a")
+	}
+
+	test2 := new(Test2)
+	test2.C = "C"
 	test1 = &Test1{Test2: test2}
 	data = MapData(test1)
 
@@ -143,10 +154,59 @@ func TestMapDataWithPointers(t *testing.T) {
 		t.Errorf("Data amount %d, want %d", count, 2)
 	}
 
-	test1 = &Test1{Test2: test2, A: test2, B: test2}
+	if _, ok := data["a"]; !ok {
+		t.Errorf("Expected key %s in data", "a")
+	}
+
+	if _, ok := data["c"]; !ok {
+		t.Errorf("Expected key %s in data", "c")
+	}
+
+	test3 := new(Test3)
+	test4 := new(Test4)
+
+	test1 = &Test1{Test2: test2, A: test3, B: test4}
+	data = MapData(test1)
+
+	if count := len(data); count != 2 {
+		t.Errorf("Data amount %d, want %d", count, 2)
+	}
+
+	if _, ok := data["a"]; !ok {
+		t.Errorf("Expected key %s in data", "a")
+	}
+
+	if _, isPropertyMap := data["a"].(PropertyMap); !isPropertyMap {
+		t.Errorf("Expected value of key a in data: %v", PropertyMap{})
+	}
+
+	if _, ok := data["c"]; !ok {
+		t.Errorf("Expected key %s in data", "c")
+	}
+
+	test4 = new(Test4)
+	test4.E = "E"
+
+	test1 = &Test1{Test2: test2, A: test3, B: test4}
 	data = MapData(test1)
 
 	if count := len(data); count != 3 {
 		t.Errorf("Data amount %d, want %d", count, 3)
+	}
+
+	if _, ok := data["a"]; !ok {
+		t.Errorf("Expected key %s in data", "a")
+	}
+
+	if _, ok := data["b"]; !ok {
+		t.Errorf("Expected key %s in data", "b")
+	}
+
+	if val, isPropertyMap := data["b"].(PropertyMap); !isPropertyMap || len(val) != 1 {
+		t.Errorf("Expected value of key b in data: %v", PropertyMap{"e": "E"})
+	}
+
+	if _, ok := data["c"]; !ok {
+		t.Errorf("Expected key %s in data", "c")
 	}
 }
