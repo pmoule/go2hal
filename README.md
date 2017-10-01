@@ -346,7 +346,7 @@ embeddedDoctor.AddData(doctor)
 
 //assign a CURIE link by name
 doctorLink := factory.CreateResourceLink("hartnell", "doc")
-doctorLink.SetResource(doctor)
+doctorLink.SetResource(embeddedDoctor)
 
 root.AddResource(doctorLink)
 ```
