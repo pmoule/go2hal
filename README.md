@@ -24,7 +24,7 @@ to produce **JSON** output as proposed in [JSON Hypertext Application Language](
 ### Preliminary stuff
 Download and install `go2hal` into your GOPATH.
 ```
-go get github.com/pmoule/go2hal
+go get github.com/pmoule/go2hal/hal
 ```
 Import the `hal` package to get started.
 ```go
