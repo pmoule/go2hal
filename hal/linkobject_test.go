@@ -1,5 +1,5 @@
-// go2hal v0.3.3
-// Copyright (c) 2017 Patrick Moule
+// go2hal v0.4.0
+// Copyright (c) 2020 Patrick Moule
 // License: MIT
 
 package hal
@@ -23,7 +23,7 @@ func TestNewCurieLink(t *testing.T) {
 	}
 
 	if !wantedCurieLink.Templated {
-		t.Errorf("Link templated == %q, want %q", wantedCurieLink.Templated, true)
+		t.Errorf("Link templated == %t, want %t", wantedCurieLink.Templated, true)
 	}
 
 	_, invalidNameError := NewCurieLink("", wantedHref)
