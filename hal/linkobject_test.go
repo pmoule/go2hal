@@ -23,7 +23,7 @@ func TestNewCurieLink(t *testing.T) {
 	}
 
 	if !wantedCurieLink.Templated {
-		t.Errorf("Link templated == %q, want %q", wantedCurieLink.Templated, true)
+		t.Errorf("Link templated == %t, want %t", wantedCurieLink.Templated, true)
 	}
 
 	_, invalidNameError := NewCurieLink("", wantedHref)
