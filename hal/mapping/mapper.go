@@ -5,6 +5,7 @@
 package mapping
 
 import (
+	"encoding/json"
 	"reflect"
 	"strings"
 	"time"
@@ -19,6 +20,7 @@ type NamedMap struct {
 // PropertyMap simply maps a string to any kind of value.
 type PropertyMap map[string]interface{}
 
+// MapData returns a PropertyMap for given data.
 func MapData(data interface{}) PropertyMap {
 	return readDataFields(reflect.ValueOf(data))
 }
@@ -104,6 +106,31 @@ func toJSONValue(tField reflect.StructField, vField reflect.Value) (string, inte
 	}
 
 	_, isTime := vField.Interface().(time.Time)
+
+	if !isTime {
+		va := vField
+
+		if tField.Type.Kind() == reflect.Ptr {
+			va = vField.Addr()
+		}
+
+		if m, ok := va.Interface().(json.Marshaler); ok {
+			b, err := m.MarshalJSON()
+
+			if err != nil {
+				return "", nil, false
+			}
+
+			value := string(b)
+			isZeroValue := len(value) == 0
+
+			if omitEmpty && isZeroValue {
+				return "", nil, false
+			}
+
+			return fieldName, value, true
+		}
+	}
 
 	if vField.Kind() == reflect.Struct && !isTime {
 		value := readDataFields(reflect.ValueOf(vField.Interface()))

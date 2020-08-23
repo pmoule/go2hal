@@ -5,6 +5,7 @@
 package mapping
 
 import (
+	"errors"
 	"testing"
 	"time"
 )
@@ -31,15 +32,15 @@ func TestMapData(t *testing.T) {
 	}
 
 	type Test3 struct {
-		K string `json:"k, omitempty"`
+		K string `json:"k,omitempty"`
 	}
 
 	type Test2 struct {
 		F string `json:"f"`
 		g string
 		H Test3  `json:"h"`
-		I [2]int `json:"i, omitempty"`
-		J Test3  `json:"j, omitempty"`
+		I [2]int `json:"i,omitempty"`
+		J Test3  `json:"j,omitempty"`
 	}
 
 	type Test1 struct {
@@ -48,7 +49,7 @@ func TestMapData(t *testing.T) {
 		A string   `json:"a"`
 		B []string `json:"b"`
 		c string
-		D int `json:"d, omitempty"`
+		D int `json:"d,omitempty"`
 		E int `json:"-"`
 	}
 
@@ -82,7 +83,7 @@ func TestMapData(t *testing.T) {
 	}
 
 	type Test4 struct {
-		Timestamp time.Time `json:"timestamp, omitempty"`
+		Timestamp time.Time `json:"timestamp,omitempty"`
 	}
 
 	test4 := Test4{Timestamp: time.Now()}
@@ -98,7 +99,7 @@ func TestMapData(t *testing.T) {
 	}
 
 	type Test6 struct {
-		Test5 Test5 `json:"test5, omitempty"`
+		Test5 Test5 `json:"test5,omitempty"`
 	}
 
 	test5 := new(Test5)
@@ -117,11 +118,11 @@ func TestMapData(t *testing.T) {
 
 func TestMapDataWithPointers(t *testing.T) {
 	type Test4 struct {
-		E string `json:"e, omitempty"`
+		E string `json:"e,omitempty"`
 	}
 
 	type Test3 struct {
-		D string `json:"d, omitempty"`
+		D string `json:"d,omitempty"`
 	}
 
 	type Test2 struct {
@@ -131,7 +132,7 @@ func TestMapDataWithPointers(t *testing.T) {
 	type Test1 struct {
 		*Test2
 		A *Test3 `json:"a"`
-		B *Test4 `json:"b, omitempty"`
+		B *Test4 `json:"b,omitempty"`
 	}
 
 	test1 := &Test1{}
@@ -208,5 +209,97 @@ func TestMapDataWithPointers(t *testing.T) {
 
 	if _, ok := data["c"]; !ok {
 		t.Errorf("Expected key %s in data", "c")
+	}
+}
+
+type CustomType string
+
+func (c *CustomType) MarshalJSON() ([]byte, error) {
+	return []byte("test value"), nil
+}
+
+type CustomType2 string
+
+func (c CustomType2) MarshalJSON() ([]byte, error) {
+	return []byte("test value"), nil
+}
+
+type CustomType3 string
+
+func (c CustomType3) MarshalJSON() ([]byte, error) {
+	return []byte("test value"), errors.New("error")
+}
+
+func TestMapDataWithCustomMarshaler(t *testing.T) {
+	type Test1 struct {
+		A *CustomType `json:"a"`
+		B CustomType  `json:"b"`
+	}
+
+	a := CustomType("test1")
+	b := CustomType("test2")
+	test := &Test1{A: &a, B: b}
+	data := MapData(test)
+
+	if count := len(data); count != 2 {
+		t.Errorf("Data amount %d, want %d", count, 2)
+	}
+
+	if _, ok := data["a"]; !ok {
+		t.Errorf("Expected key %s in data", "a")
+	}
+
+	if v, _ := data["a"]; v != "test value" {
+		t.Errorf("Value is %s, want %s", v, "test value")
+	}
+
+	if _, ok := data["b"]; !ok {
+		t.Errorf("Expected key %s in data", "b")
+	}
+
+	if v, _ := data["b"]; v != CustomType("test2") {
+		t.Errorf("Value is %s, want %s", v, "test2")
+	}
+
+	type Test2 struct {
+		A *CustomType2 `json:"a"`
+		B CustomType2  `json:"b"`
+	}
+
+	a2 := CustomType2("test1")
+	b2 := CustomType2("test2")
+	test2 := &Test2{A: &a2, B: b2}
+	data = MapData(test2)
+
+	if count := len(data); count != 2 {
+		t.Errorf("Data amount %d, want %d", count, 2)
+	}
+
+	if _, ok := data["a"]; !ok {
+		t.Errorf("Expected key %s in data", "a")
+	}
+
+	if v, _ := data["a"]; v != "test value" {
+		t.Errorf("Value is %s, want %s", v, "test value")
+	}
+
+	if _, ok := data["b"]; !ok {
+		t.Errorf("Expected key %s in data", "b")
+	}
+
+	if v, _ := data["b"]; v != "test value" {
+		t.Errorf("Value is %s, want %s", v, "test value")
+	}
+
+	type Test3 struct {
+		A *CustomType3 `json:"a"`
+	}
+
+	a3 := CustomType3("test1")
+	test3 := &Test3{A: &a3}
+	data = MapData(test3)
+
+	if count := len(data); count != 0 {
+		t.Errorf("Data amount %d, want %d", count, 0)
 	}
 }
