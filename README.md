@@ -1,4 +1,7 @@
 # go2hal
+![Build](https://github.com/pmoule/go2hal/actions/workflows/go_build_and_test.yml/badge.svg)
+[![GoDoc](https://godoc.org/github.com/pmoule/go2hal?status.svg)](https://godoc.org/github.com/pmoule/go2hal)
+
 A **Go** implementation of **Hypertext Application Language (HAL)**.
 It provides essential data structures and features a JSON generator
 to produce **JSON** output as proposed in [JSON Hypertext Application Language](https://tools.ietf.org/html/draft-kelly-json-hal).
