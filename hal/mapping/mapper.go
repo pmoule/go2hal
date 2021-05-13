@@ -32,6 +32,7 @@ func readDataFields(v reflect.Value) PropertyMap {
 
 	vType := v.Type()
 
+	// force the real type
 	if vType.Kind() == reflect.Ptr {
 		vType = vType.Elem()
 		v = v.Elem()
@@ -47,6 +48,7 @@ func readDataFields(v reflect.Value) PropertyMap {
 		vField := v.Field(i)
 		tField := vType.Field(i)
 
+		// force the real type
 		if vField.Kind() == reflect.Ptr {
 			vField = vField.Elem()
 		}
@@ -108,6 +110,61 @@ func toJSONValue(tField reflect.StructField, vField reflect.Value) (string, inte
 	_, isTime := vField.Interface().(time.Time)
 
 	if !isTime {
+		if vField.Kind() == reflect.Slice {
+			element := tField.Type.Elem()
+
+			// force the real type
+			if element.Kind() == reflect.Ptr {
+				element = element.Elem()
+			}
+
+			if element.Kind() == reflect.Struct {
+				sliceValuePtr := createSlice([]PropertyMap{})
+
+				for i := 0; i < vField.Len(); i++ {
+					v := vField.Index(i)
+					value := readDataFields(v)
+					sliceValuePtr.Set(reflect.Append(sliceValuePtr, reflect.ValueOf(value)))
+				}
+
+				return fieldName, sliceValuePtr.Interface(), true
+			} else {
+				sliceValuePtr := createSlice([]string{})
+
+				for i := 0; i < vField.Len(); i++ {
+					v := vField.Index(i)
+					vType := v.Type()
+
+					if vType.Kind() == reflect.Ptr {
+						v = v.Elem()
+					}
+
+					if m, ok := v.Addr().Interface().(json.Marshaler); ok {
+						b, err := m.MarshalJSON()
+
+						if err != nil {
+							continue
+						}
+
+						value := string(b)
+						isZeroValue := len(value) == 0
+
+						if isZeroValue {
+							continue
+						}
+
+						sliceValuePtr.Set(reflect.Append(sliceValuePtr, reflect.ValueOf(value)))
+					}
+				}
+
+				if isZeroValue(sliceValuePtr) && omitEmpty {
+					return "", nil, false
+				}
+
+				return fieldName, sliceValuePtr.Interface(), true
+			}
+		}
+
 		va := vField
 
 		if tField.Type.Kind() == reflect.Ptr {
@@ -124,7 +181,18 @@ func toJSONValue(tField reflect.StructField, vField reflect.Value) (string, inte
 			value := string(b)
 			isZeroValue := len(value) == 0
 
-			if omitEmpty && isZeroValue {
+			if isZeroValue && omitEmpty {
+				return "", nil, false
+			}
+
+			return fieldName, value, true
+		}
+
+		if vField.Kind() == reflect.Struct {
+			value := readDataFields(reflect.ValueOf(vField.Interface()))
+			isZeroValue := len(value) == 0
+
+			if isZeroValue && omitEmpty {
 				return "", nil, false
 			}
 
@@ -132,24 +200,21 @@ func toJSONValue(tField reflect.StructField, vField reflect.Value) (string, inte
 		}
 	}
 
-	if vField.Kind() == reflect.Struct && !isTime {
-		value := readDataFields(reflect.ValueOf(vField.Interface()))
-		isZeroValue := len(value) == 0
-
-		if omitEmpty && isZeroValue {
-			return "", nil, false
-		}
-
-		return fieldName, value, true
-	}
-
-	isZeroValue := isZeroValue(vField)
-
-	if omitEmpty && isZeroValue {
+	if isZeroValue(vField) && omitEmpty {
 		return "", nil, false
 	}
 
 	return fieldName, vField.Interface(), true
+}
+
+func createSlice(sliceType interface{}) reflect.Value {
+	reflection := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(sliceType).Elem()), 0, 0)
+	reflectionValue := reflect.New(reflection.Type())
+	reflectionValue.Elem().Set(reflection)
+	slicePtr := reflect.ValueOf(reflectionValue.Interface())
+	sliceValuePtr := slicePtr.Elem()
+
+	return sliceValuePtr
 }
 
 func readEmbeddedField(v reflect.Value) PropertyMap {
@@ -171,7 +236,7 @@ func isZeroValue(val reflect.Value) bool {
 	}
 
 	switch val.Kind() {
-	case reflect.Func, reflect.Map, reflect.Slice:
+	case reflect.Func:
 		return val.IsNil()
 	case reflect.Struct:
 		isZero := true
@@ -185,11 +250,19 @@ func isZeroValue(val reflect.Value) bool {
 		}
 
 		return isZero
-	case reflect.Array:
+	case reflect.Array, reflect.Slice:
 		isZero := true
 
 		for i := 0; i < val.Len(); i++ {
 			isZero = isZero && isZeroValue(val.Index(i))
+		}
+
+		return isZero
+	case reflect.Map:
+		isZero := true
+
+		for _, e := range val.MapKeys() {
+			isZero = isZero && isZeroValue(val.MapIndex(e))
 		}
 
 		return isZero

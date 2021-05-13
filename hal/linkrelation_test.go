@@ -47,6 +47,49 @@ func TestNewLinkRelation(t *testing.T) {
 	if relation.FullName() != wantedCuriedRelationName {
 		t.Errorf("LinkRelation name == %q, want %q", relation.FullName(), wantedCuriedRelationName)
 	}
+
+	linkObject, _ := NewLinkObject("test")
+	relation.SetLink(linkObject)
+
+	if count := len(relation.Links()); count != 1 {
+		t.Errorf("LinkRelation links == %d, want %d", count, 1)
+	}
+
+	if relation.IsLinkSet() {
+		t.Errorf("ResourceRelation not should be a link set")
+	}
+
+	relation.SetLinks([]*LinkObject{linkObject})
+
+	if count := len(relation.Links()); count != 2 {
+		t.Errorf("LinkRelation links == %d, want %d", count, 2)
+	}
+
+	if !relation.IsLinkSet() {
+		t.Errorf("ResourceRelation should be a link set")
+	}
+}
+
+func TestNewResourceRelation(t *testing.T) {
+	wantedRelationName := "relation"
+	relation, _ := NewResourceRelation(wantedRelationName)
+
+	if relation.Name() != wantedRelationName {
+		t.Errorf("ResourceRelation name == %q, want %q", relation.Name(), wantedRelationName)
+	}
+
+	resource := NewResourceObject()
+	relation.SetResource(resource)
+
+	if relation.IsResourceSet() {
+		t.Errorf("ResourceRelation should not be a resource set")
+	}
+
+	relation.SetResources([]Resource{resource})
+
+	if !relation.IsResourceSet() {
+		t.Errorf("ResourceRelation should be a resource set")
+	}
 }
 
 func TestLinksToMap(t *testing.T) {

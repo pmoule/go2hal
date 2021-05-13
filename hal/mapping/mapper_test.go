@@ -6,6 +6,7 @@ package mapping
 
 import (
 	"errors"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -113,6 +114,150 @@ func TestMapData(t *testing.T) {
 
 	if _, ok := data["test5"]; !ok {
 		t.Errorf("Expected key %s in data", "test5")
+	}
+
+	type YYY struct {
+		A string `json:"a"`
+	}
+
+	type Test8 struct {
+		Y []YYY         `json:"yyyy"`
+		Z []*YYY        `json:"zzzz"`
+		A []*CustomType `json:"aaaa"`
+		C []CustomType  `json:"cccc"`
+		B *CustomType   `json:"bbbb"`
+		X []string      `json:"string"`
+	}
+
+	testY1 := YYY{A: "A value"}
+	a := CustomType("test1")
+	test8 := Test8{X: []string{"x1", "x2"}, Y: []YYY{testY1}, A: []*CustomType{&a}, B: &a, Z: []*YYY{&testY1}, C: []CustomType{a}}
+	data = MapData(test8)
+
+	if count := len(data); count != 6 {
+		t.Errorf("Data amount %d, want %d", count, 6)
+	}
+
+	val, ok := data["yyyy"]
+
+	if !ok {
+		t.Errorf("expected key %s", "yyyy")
+	}
+
+	if _, ok := val.([]PropertyMap); !ok {
+		t.Errorf("type is %s, want %T", reflect.TypeOf(val), []PropertyMap{})
+	}
+
+	val, ok = data["zzzz"]
+
+	if !ok {
+		t.Errorf("expected key %s", "zzzz")
+	}
+
+	if _, ok := val.([]PropertyMap); !ok {
+		t.Errorf("type is %s, want %T", reflect.TypeOf(val), []PropertyMap{})
+	}
+
+	val, ok = data["aaaa"]
+
+	if !ok {
+		t.Errorf("expected key %s", "aaaa")
+	}
+
+	if _, ok := val.([]string); !ok {
+		t.Errorf("type is %s, want %T", reflect.TypeOf(val), []string{})
+	}
+
+	val, ok = data["cccc"]
+
+	if !ok {
+		t.Errorf("expected key %s", "cccc")
+	}
+
+	if _, ok := val.([]string); !ok {
+		t.Errorf("type is %s, want %T", reflect.TypeOf(val), []string{})
+	}
+
+	val, ok = data["string"]
+
+	if !ok {
+		t.Errorf("expected key %s", "string")
+	}
+
+	if _, ok := val.([]string); !ok {
+		t.Errorf("type is %s, want %T", reflect.TypeOf(val), []string{})
+	}
+
+	type Test9 struct {
+		A []CustomType3 `json:"a"`
+		B []CustomType4 `json:"b"`
+	}
+
+	test9 := Test9{A: []CustomType3{CustomType3("test")}, B: []CustomType4{CustomType4("")}}
+	data = MapData(test9)
+
+	if count := len(data); count != 2 {
+		t.Errorf("Data amount %d, want %d", count, 2)
+	}
+
+	val, ok = data["a"]
+
+	if !ok {
+		t.Errorf("expected key %s", "a")
+	}
+
+	if _, ok := val.([]string); !ok {
+		t.Errorf("type is %s, want %T", reflect.TypeOf(val), []string{})
+	}
+
+	if count := len(val.([]string)); count != 0 {
+		t.Errorf("Data amount %d, want %d", count, 0)
+	}
+
+	val, ok = data["b"]
+
+	if !ok {
+		t.Errorf("expected key %s", "b")
+	}
+
+	if _, ok := val.([]string); !ok {
+		t.Errorf("type is %s, want %T", reflect.TypeOf(val), []string{})
+	}
+
+	if count := len(val.([]string)); count != 0 {
+		t.Errorf("Data amount %d, want %d", count, 0)
+	}
+
+	type Test10 struct {
+		A []CustomType4 `json:"a,omitempty"`
+	}
+
+	test10 := Test10{A: []CustomType4{CustomType4("")}}
+	data = MapData(test10)
+
+	if count := len(data); count != 0 {
+		t.Errorf("Data amount %d, want %d", count, 0)
+	}
+
+	test10 = Test10{A: []CustomType4{CustomType4("test")}}
+	data = MapData(test10)
+
+	if count := len(data); count != 1 {
+		t.Errorf("Data amount %d, want %d", count, 1)
+	}
+
+	val, ok = data["a"]
+
+	if !ok {
+		t.Errorf("expected key %s", "a")
+	}
+
+	if _, ok := val.([]string); !ok {
+		t.Errorf("type is %s, want %T", reflect.TypeOf(val), []PropertyMap{})
+	}
+
+	if count := len(val.([]string)); count != 1 {
+		t.Errorf("Data amount %d, want %d", count, 1)
 	}
 }
 
@@ -230,6 +375,88 @@ func (c CustomType3) MarshalJSON() ([]byte, error) {
 	return []byte("test value"), errors.New("error")
 }
 
+type CustomType4 string
+
+func (c *CustomType4) MarshalJSON() ([]byte, error) {
+	return []byte(string(*c)), nil
+}
+
+func TestMapDataWithMaps(t *testing.T) {
+	type Test1 struct {
+		A map[string]string `json:"a,omitempty"`
+	}
+
+	test := &Test1{}
+	data := MapData(test)
+
+	if count := len(data); count != 0 {
+		t.Errorf("Data amount %d, want %d", count, 0)
+	}
+
+	mapData := make(map[string]string)
+	test.A = mapData
+	data = MapData(test)
+
+	if count := len(data); count != 0 {
+		t.Errorf("Data amount %d, want %d", count, 0)
+	}
+
+	test.A["test"] = "value 1"
+	data = MapData(test)
+
+	if count := len(data); count != 1 {
+		t.Errorf("Data amount %d, want %d", count, 1)
+	}
+
+	type Test2 struct {
+		A map[string]CustomType4 `json:"a,omitempty"`
+	}
+
+	test2 := &Test2{}
+	mapData2 := make(map[string]CustomType4)
+	test2.A = mapData2
+	data = MapData(test2)
+
+	if count := len(data); count != 0 {
+		t.Errorf("Data amount %d, want %d", count, 0)
+	}
+
+	test2.A["test"] = CustomType4("")
+	data = MapData(test2)
+
+	if count := len(data); count != 0 {
+		t.Errorf("Data amount %d, want %d", count, 0)
+	}
+
+	test2.A["test"] = CustomType4("value 1")
+	data = MapData(test2)
+
+	if count := len(data); count != 1 {
+		t.Errorf("Data amount %d, want %d", count, 1)
+	}
+}
+
+func TestMapDataWithFuncs(t *testing.T) {
+	type Test1 struct {
+		A func() `json:"a,omitempty"`
+	}
+
+	test := &Test1{}
+	data := MapData(test)
+
+	if count := len(data); count != 0 {
+		t.Errorf("Data amount %d, want %d", count, 0)
+	}
+
+	testFunc := func() {}
+	test = &Test1{A: testFunc}
+	data = MapData(test)
+
+	if count := len(data); count != 1 {
+		t.Errorf("Data amount %d, want %d", count, 1)
+	}
+}
+
 func TestMapDataWithCustomMarshaler(t *testing.T) {
 	type Test1 struct {
 		A *CustomType `json:"a"`
@@ -249,7 +476,7 @@ func TestMapDataWithCustomMarshaler(t *testing.T) {
 		t.Errorf("Expected key %s in data", "a")
 	}
 
-	if v, _ := data["a"]; v != "test value" {
+	if v := data["a"]; v != "test value" {
 		t.Errorf("Value is %s, want %s", v, "test value")
 	}
 
@@ -257,7 +484,7 @@ func TestMapDataWithCustomMarshaler(t *testing.T) {
 		t.Errorf("Expected key %s in data", "b")
 	}
 
-	if v, _ := data["b"]; v != CustomType("test2") {
+	if v := data["b"]; v != CustomType("test2") {
 		t.Errorf("Value is %s, want %s", v, "test2")
 	}
 
@@ -279,7 +506,7 @@ func TestMapDataWithCustomMarshaler(t *testing.T) {
 		t.Errorf("Expected key %s in data", "a")
 	}
 
-	if v, _ := data["a"]; v != "test value" {
+	if v := data["a"]; v != "test value" {
 		t.Errorf("Value is %s, want %s", v, "test value")
 	}
 
@@ -287,7 +514,7 @@ func TestMapDataWithCustomMarshaler(t *testing.T) {
 		t.Errorf("Expected key %s in data", "b")
 	}
 
-	if v, _ := data["b"]; v != "test value" {
+	if v := data["b"]; v != "test value" {
 		t.Errorf("Value is %s, want %s", v, "test value")
 	}
 
@@ -298,6 +525,18 @@ func TestMapDataWithCustomMarshaler(t *testing.T) {
 	a3 := CustomType3("test1")
 	test3 := &Test3{A: &a3}
 	data = MapData(test3)
+
+	if count := len(data); count != 0 {
+		t.Errorf("Data amount %d, want %d", count, 0)
+	}
+
+	type Test4 struct {
+		A *CustomType4 `json:"a,omitempty"`
+	}
+
+	a4 := CustomType4("")
+	test4 := &Test4{A: &a4}
+	data = MapData(test4)
 
 	if count := len(data); count != 0 {
 		t.Errorf("Data amount %d, want %d", count, 0)

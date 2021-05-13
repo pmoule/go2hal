@@ -51,7 +51,7 @@ type linkRelation struct {
 // newRelation initializes a valid link relation.
 func newRelation(name string) (*linkRelation, error) {
 	if name == "" {
-		return nil, errors.New("LinkRelation requires a name value.")
+		return nil, errors.New("LinkRelation requires a name value")
 	}
 
 	return &linkRelation{name: name, links: []*LinkObject{}, resources: []Resource{}}, nil
@@ -109,10 +109,7 @@ func (lr *linkRelation) SetLink(link *LinkObject) {
 
 // Assign a slice of Link Objects
 func (lr *linkRelation) SetLinks(links []*LinkObject) {
-	for _, link := range links {
-		lr.links = append(lr.links, link)
-	}
-
+	lr.links = append(lr.links, links...)
 	lr.isValueSet = true
 }
 
@@ -132,10 +129,7 @@ func (lr *linkRelation) SetResource(resource Resource) {
 
 // Assign a slice of Resource Objects
 func (lr *linkRelation) SetResources(resources []Resource) {
-	for _, resource := range resources {
-		lr.resources = append(lr.resources, resource)
-	}
-
+	lr.resources = append(lr.resources, resources...)
 	lr.isValueSet = true
 }
 
