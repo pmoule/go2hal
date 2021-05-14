@@ -1,6 +1,8 @@
 # go2hal
 ![Build](https://github.com/pmoule/go2hal/actions/workflows/go_build_and_test.yml/badge.svg)
+[![codecov](https://codecov.io/gh/pmoule/go2hal/branch/master/graph/badge.svg)](https://codecov.io/gh/pmoule/go2hal)
 [![GoDoc](https://godoc.org/github.com/pmoule/go2hal?status.svg)](https://godoc.org/github.com/pmoule/go2hal)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://pmoule.mit-license.org)
 
 A **Go** implementation of **Hypertext Application Language (HAL)**.
 It provides essential data structures and features a JSON generator
