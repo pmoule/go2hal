@@ -27,7 +27,9 @@ func MapData(data interface{}) PropertyMap {
 
 func readDataFields(v reflect.Value) PropertyMap {
 	if isZeroValue(v) {
-		return PropertyMap{}
+		if v == reflect.Zero(reflect.TypeOf(v)).Interface() {
+			return PropertyMap{}
+		}
 	}
 
 	vType := v.Type()
@@ -154,6 +156,8 @@ func toJSONValue(tField reflect.StructField, vField reflect.Value) (string, inte
 						}
 
 						sliceValuePtr.Set(reflect.Append(sliceValuePtr, reflect.ValueOf(value)))
+					} else {
+						sliceValuePtr.Set(reflect.Append(sliceValuePtr, v))
 					}
 				}
 

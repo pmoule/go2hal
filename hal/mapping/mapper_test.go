@@ -259,6 +259,35 @@ func TestMapData(t *testing.T) {
 	if count := len(val.([]string)); count != 1 {
 		t.Errorf("Data amount %d, want %d", count, 1)
 	}
+
+	type Test11 struct {
+		A []string `json:"a"`
+	}
+
+	test11 := Test11{A: []string{""}}
+	data = MapData(test11)
+
+	if count := len(data); count != 1 {
+		t.Errorf("Data amount %d, want %d", count, 1)
+	}
+
+	type Test12 struct {
+		A []string `json:"a,omitempty"`
+	}
+
+	test12 := Test12{A: []string{""}}
+	data = MapData(test12)
+
+	if count := len(data); count != 0 {
+		t.Errorf("Data amount %d, want %d", count, 0)
+	}
+
+	test12.A = append(test12.A, "test value")
+	data = MapData(test12)
+
+	if count := len(data); count != 1 {
+		t.Errorf("Data amount %d, want %d", count, 1)
+	}
 }
 
 func TestMapDataWithPointers(t *testing.T) {
