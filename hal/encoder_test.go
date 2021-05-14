@@ -1,5 +1,5 @@
-// go2hal v0.4.0
-// Copyright (c) 2020 Patrick Moule
+// go2hal v0.5.0
+// Copyright (c) 2021 Patrick Moule
 // License: MIT
 
 package hal
@@ -91,8 +91,8 @@ func TestEncoderWithEmbeddedResources(t *testing.T) {
 	root.AddLink(self)
 
 	actors := []Actor{
-		Actor{1, "William Hartnell"},
-		Actor{2, "Patrick Troughton"},
+		{1, "William Hartnell"},
+		{2, "Patrick Troughton"},
 	}
 
 	var embeddedActors []Resource

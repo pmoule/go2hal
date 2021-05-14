@@ -1,5 +1,5 @@
-// go2hal v0.4.0
-// Copyright (c) 2020 Patrick Moule
+// go2hal v0.5.0
+// Copyright (c) 2021 Patrick Moule
 // License: MIT
 
 package hal
@@ -28,7 +28,7 @@ func NewResourceFactory(curieLinks []*LinkObject) ResourceFactory {
 	return factory
 }
 
-// CreateLink creates a Link Relation with given relationName and href. A CURIE link can
+// CreateLink creates a Link Relation with provided relation name and href. A CURIE link can
 // be added by curieLinkName. The real CURIE link is picked from the set of CURIE links the factory
 // is initialised with.
 func (rf *resourceFactory) CreateLink(relationName string, href string, curieLinkName string) LinkRelation {
@@ -57,7 +57,7 @@ func (rf *resourceFactory) CreateLink(relationName string, href string, curieLin
 	return relation
 }
 
-// CreateResourceLink creates a Link Relation with given relationName. A CURIE link can
+// CreateResourceLink creates a Link Relation with provided relation name. A CURIE link can
 // be added by curieLinkName. The real CURIE link is picked from the set of CURIE links the factory
 // is initialised with.
 func (rf *resourceFactory) CreateResourceLink(relationName string, curieLinkName string) ResourceRelation {
@@ -78,8 +78,8 @@ func (rf *resourceFactory) CreateResourceLink(relationName string, curieLinkName
 	return relation
 }
 
-// CreateRootResource creates a root Resource with self link from given href.
-// Additionally all CURIE links given at ResourceFactory initialisation are added.
+// CreateRootResource creates a root Resource with self link from provided href.
+// Additionally all CURIE links provided at ResourceFactory initialisation are added.
 func (rf *resourceFactory) CreateRootResource(href string) Resource {
 	resource := rf.createResource(href)
 
@@ -94,7 +94,7 @@ func (rf *resourceFactory) CreateRootResource(href string) Resource {
 	return resource
 }
 
-// CreateEmbeddedResource creates an embedded Resource with self link from given href.
+// CreateEmbeddedResource creates an embedded Resource with self link from provided href.
 func (rf *resourceFactory) CreateEmbeddedResource(href string) Resource {
 	resource := rf.createResource(href)
 

@@ -1,5 +1,5 @@
-// go2hal v0.4.0
-// Copyright (c) 2020 Patrick Moule
+// go2hal v0.5.0
+// Copyright (c) 2021 Patrick Moule
 // License: MIT
 
 package hal
@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 )
 
-// Encoder to encode a Resource Object into a valid HAL document.
+// Encoder to encode a Resource into a valid HAL document.
 type Encoder interface {
 	ToJSON(resource Resource) ([]byte, error)
 }
@@ -21,7 +21,7 @@ func NewEncoder() Encoder {
 	return new(standardEncoder)
 }
 
-// ToJSON generates a HAL document from given Resource Object.
+// ToJSON generates a HAL document from provided Resource.
 func (enc *standardEncoder) ToJSON(resource Resource) ([]byte, error) {
 	namedMap := resource.ToMap()
 

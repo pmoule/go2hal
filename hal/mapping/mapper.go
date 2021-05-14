@@ -1,7 +1,6 @@
-// go2hal v0.4.0
-// Copyright (c) 2020 Patrick Moule
+// go2hal v0.5.0
+// Copyright (c) 2021 Patrick Moule
 // License: MIT
-
 package mapping
 
 import (
@@ -20,7 +19,7 @@ type NamedMap struct {
 // PropertyMap simply maps a string to any kind of value.
 type PropertyMap map[string]interface{}
 
-// MapData returns a PropertyMap for given data.
+// MapData returns a PropertyMap for provided data.
 func MapData(data interface{}) PropertyMap {
 	return readDataFields(reflect.ValueOf(data))
 }

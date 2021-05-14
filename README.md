@@ -7,6 +7,7 @@
 A **Go** implementation of **Hypertext Application Language (HAL)**.
 It provides essential data structures and features a JSON generator
 to produce **JSON** output as proposed in [JSON Hypertext Application Language](https://tools.ietf.org/html/draft-kelly-json-hal).
+As an add-on it also supports the [The HAL-FORMS Media Type](https://rwcbook.github.io/hal-forms/) based on the <span style="color:red">**Working Draft**</span> from 2021-03-03.
 
 ## Features
 - HAL API
@@ -23,7 +24,9 @@ to produce **JSON** output as proposed in [JSON Hypertext Application Language](
         Define CURIE **Link Objects** and assign to defined **Link Relations**.
 - JSON generator to produce HAL Document
 - Tools to simplify HAL document creation
-
+- HAL-FORMS
+  - JSON generator to produce HAL-FORMS documents
+  - Supports creating relations in HAL pointing to HAL-FORMS documents
 
 ## Usage
 ### Preliminary stuff
@@ -47,8 +50,8 @@ Next, create an `Encoder` and call it's `ToJSON` function to generate valid JSON
 encoder := hal.NewEncoder()
 bytes, error := encoder.ToJSON(root)
 ```
-The generated JSON is
-```
+Generated JSON
+```JSON
 {}
 ```
 There's potential for more :smile:
@@ -68,7 +71,7 @@ self := hal.NewSelfLinkRelation()
 ```
 
 Generated JSON
-```
+```JSON
 {
     "_links": {
         "self": {
@@ -87,7 +90,7 @@ data := root.Data()
 data["doctorCount"] = 12
 ```
 Generated JSON
-```
+```JSON
 {
     "_links": {
         "self": {
@@ -112,7 +115,7 @@ info := DoctorsInfo{12, "All actors of the Doctor.", "1963", "today"}
 root.AddData(info)
 ```
 Generated JSON
-```
+```JSON
 {
     "_links": {
         "self": {
@@ -162,7 +165,7 @@ doctors.SetResources(embeddedActors)
 root.AddResource(doctors)
 ```
 Generated JSON
-```
+```JSON
 {
     "_links": {
         "self": {
@@ -205,7 +208,7 @@ root.AddCurieLinks(curieLinks)
 doctors.SetCurieLink(curieLink)
 ```
 Generated JSON
-```
+```JSON
 {
     "_links": {
         "curies": [
@@ -264,7 +267,7 @@ linkRelation.SetLink(link)
 resourceRelation.SetResource(resource)
 ```
 Generated JSON
-```
+```JSON
 {
     "_links": {
         "linkRel": {
@@ -284,7 +287,7 @@ linkRelation.SetLinks([]*LinkObject{link})
 resourceRelation.SetResources([]hal.Resource{resource})
 ```
 Generated JSON
-```
+```JSON
 {
     "_links": {
         "linkRel": [
@@ -322,7 +325,7 @@ self := "/docwhoapi/doctors"
 root := factory.CreateRootResource(self)
 ```
 Generated JSON
-```
+```JSON
 {
     "_links": {
         "curies": [
@@ -356,7 +359,7 @@ doctorLink.SetResource(embeddedDoctor)
 root.AddResource(doctorLink)
 ```
 Generated JSON
-```
+```JSON
 {
     "_links": {
         "curies": [
@@ -385,6 +388,97 @@ Generated JSON
             }
         ]
     },
+}
+```
+### HAL-FORMS
+Let's create a link relation pointing to a **HAL-FORMS** document for creating a new resource.
+```go
+createLink, _ := halforms.NewHALFormsRelation{"create", "/docwhoapi/hal-forms/create-doctor"} //skipped error handling
+root.AddLink(createLink)
+```
+Generated JSON
+```JSON
+{
+    "_links": {
+        "create": {
+            "href": "/docwhoapi/hal-forms/create-doctor",
+            "type": "application/prs.hal-forms+json"
+        }
+    }
+}
+```
+A **HAL-FORMS** documents can be created and encoded to **JSON** this way:
+```go
+href := "www.example.com"
+document := NewDocument(href)
+encoder := halforms.NewEncoder()
+bytes, _ := encoder.ToJSON(document) // skipped error handling
+```
+Generated JSON
+```JSON
+{
+    "_links": {
+        "self": {
+            "href": "www.example.com",
+            "type": "application/prs.hal-forms+json"
+        }
+    },
+    "_templates": {}
+}
+```
+The created document can be enriched with detailed form filed information.
+```go
+// create a new template describing how to POST a new value to target URI
+template := NewTemplate()
+template.Method = http.MethodPost
+template.Target = "/docwhoapi/doctors"
+// create a name property for the form.
+property := NewProperty("name")
+property.Prompt = "Name"
+property.Placeholder = "the doctor's name"
+property.Required = true
+
+template.Properties = append(template.Properties, property)
+document.AddTemplate(template)
+```
+Generated JSON
+```JSON
+{
+    "_links": {
+        "self": {
+            "href": "/docwhoapi/hal-forms/create-doctor",
+            "type": "application/prs.hal-forms+json"
+        }
+    },
+    "_templates": {
+        "default": {
+            "contentType": "application/json",
+            "key": "default",
+            "method": "POST",
+            "properties": [
+                {
+                    "name": "name",
+                    "prompt": "Name",
+                    "readOnly": false,
+                    "regex": "",
+                    "required": true,
+                    "templated": false,
+                    "value": "",
+                    "cols": 40,
+                    "max": "",
+                    "maxLength": "",
+                    "min": "",
+                    "minLength": "",
+                    "placeholder": "the doctor's name",
+                    "rows": 5,
+                    "step": 0,
+                    "type": "text"
+                }
+            ],
+            "target": "/docwhoapi/doctors",
+            "title": "default"
+        }
+    }
 }
 ```
 ## Documentation

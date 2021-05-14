@@ -1,5 +1,5 @@
-// go2hal v0.4.0
-// Copyright (c) 2020 Patrick Moule
+// go2hal v0.5.0
+// Copyright (c) 2021 Patrick Moule
 // License: MIT
 
 package hal
@@ -21,7 +21,7 @@ type Relation interface {
 	CurieLink() LinkObject
 }
 
-// LinkRelation is a Relation for Link Object assignment.
+// LinkRelation is a Relation for LinkObject assignment.
 type LinkRelation interface {
 	Relation
 	SetLink(*LinkObject)
@@ -30,7 +30,7 @@ type LinkRelation interface {
 	Links() []*LinkObject
 }
 
-// ResourceRelation is a Relation for Resource Object assignment.
+// ResourceRelation is a Relation for ResourceObject assignment.
 type ResourceRelation interface {
 	Relation
 	SetResource(Resource)
@@ -48,7 +48,7 @@ type linkRelation struct {
 	resources  []Resource
 }
 
-// newRelation initializes a valid link relation.
+// newRelation initializes a linkRelation.
 func newRelation(name string) (*linkRelation, error) {
 	if name == "" {
 		return nil, errors.New("LinkRelation requires a name value")
@@ -57,12 +57,12 @@ func newRelation(name string) (*linkRelation, error) {
 	return &linkRelation{name: name, links: []*LinkObject{}, resources: []Resource{}}, nil
 }
 
-// NewLinkRelation initializes a valid Link Relation for Link Object assignment.
+// NewLinkRelation initializes a LinkRelation for Link Object assignment.
 func NewLinkRelation(name string) (LinkRelation, error) {
 	return newRelation(name)
 }
 
-// NewSelfLinkRelation initializes a valid Link Relation used for targeting
+// NewSelfLinkRelation initializes a LinkRelation used for targeting
 // the URI of the resource it is attached to.
 // See http://www.iana.org/assignments/link-relations/link-relations.xhtml.
 func NewSelfLinkRelation() LinkRelation {
@@ -70,17 +70,17 @@ func NewSelfLinkRelation() LinkRelation {
 	return relation
 }
 
-// NewResourceRelation initializes a valid link relation for Resource Object assignment.
+// NewResourceRelation initializes a link relation for Resource Object assignment.
 func NewResourceRelation(name string) (ResourceRelation, error) {
 	return newRelation(name)
 }
 
-// Returns the assigned name.
+// Name returns the assigned name.
 func (lr *linkRelation) Name() string {
 	return lr.name
 }
 
-// Returns the assigned name. In case of preceding CURIE link assignment
+// FullName returns the assigned name. In case of preceding CURIE link assignment
 // the returned name is prefixed with the CURIE's name.
 func (lr *linkRelation) FullName() string {
 	if lr.curieLink == nil {
@@ -90,60 +90,65 @@ func (lr *linkRelation) FullName() string {
 	return lr.curieLink.Name + ":" + lr.Name()
 }
 
-// Use CURIES to create a more discoverable API by assigning
-// a CURIE link.
+// SetCurieLink assigns a CURIE.
 func (lr *linkRelation) SetCurieLink(curieLink *LinkObject) {
 	lr.curieLink = curieLink
 }
 
-// Returns the assigned CURIE link.
+// CurieLink returns the assigned CURIE link.
 func (lr *linkRelation) CurieLink() LinkObject {
 	return *lr.curieLink
 }
 
-// Assign a single Link Object
+// SetLink assigns a single Link Object.
 func (lr *linkRelation) SetLink(link *LinkObject) {
 	lr.links = append(lr.links, link)
 	lr.isValueSet = false
 }
 
-// Assign a slice of Link Objects
+// SetLinks assigns a slice of Link Objects.
 func (lr *linkRelation) SetLinks(links []*LinkObject) {
 	lr.links = append(lr.links, links...)
 	lr.isValueSet = true
 }
 
+// Links returns assigned links.
 func (lr *linkRelation) Links() []*LinkObject {
 	return lr.links
 }
 
+// IsLinkSet returns true if assigned links are always structured in an array.
 func (lr *linkRelation) IsLinkSet() bool {
 	return lr.isValueSet
 }
 
-// Assign a Resource Object
+// SetResource assigns a resource.
 func (lr *linkRelation) SetResource(resource Resource) {
 	lr.resources = append(lr.resources, resource)
 	lr.isValueSet = false
 }
 
-// Assign a slice of Resource Objects
+// SetResources assigns a slice of resources.
 func (lr *linkRelation) SetResources(resources []Resource) {
 	lr.resources = append(lr.resources, resources...)
 	lr.isValueSet = true
 }
 
+// Resources returns assigned resources.
 func (lr *linkRelation) Resources() []Resource {
 	return lr.resources
 }
 
+// IsResourceSet returns true if assigned resources are always structured in an array.
 func (lr *linkRelation) IsResourceSet() bool {
 	return lr.isValueSet
 }
 
-type links map[string]LinkRelation
+// Links
+type Links map[string]LinkRelation
 
-func (l links) ToMap() mapping.NamedMap {
+// ToMap converts Links to mapping.NamedMap.
+func (l Links) ToMap() mapping.NamedMap {
 	properties := mapping.PropertyMap{}
 
 	for _, val := range l {
@@ -163,6 +168,7 @@ func (l links) ToMap() mapping.NamedMap {
 
 type embeddedResources map[string]ResourceRelation
 
+// ToMap converts embeddedResources to mapping.NamedMap.
 func (er embeddedResources) ToMap() mapping.NamedMap {
 	embeddedProperties := mapping.PropertyMap{}
 

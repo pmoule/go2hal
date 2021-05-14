@@ -1,5 +1,5 @@
-// go2hal v0.4.0
-// Copyright (c) 2020 Patrick Moule
+// go2hal v0.5.0
+// Copyright (c) 2021 Patrick Moule
 // License: MIT
 
 package hal
@@ -157,7 +157,7 @@ func TestAddData(t *testing.T) {
 		A string   `json:"a"`
 		B []string `json:"b"`
 		c string
-		D int `json:"d, omitempty"`
+		D int `json:"d,omitempty"`
 		E int `json:"-"`
 	}
 

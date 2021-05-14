@@ -1,5 +1,5 @@
-// go2hal v0.4.0
-// Copyright (c) 2020 Patrick Moule
+// go2hal v0.5.0
+// Copyright (c) 2021 Patrick Moule
 // License: MIT
 
 package hal
@@ -10,9 +10,13 @@ import (
 )
 
 // Resource is the root element of a HAL document.
+//
 // A Resource can
+//
 // - have links - AddLink(LinkRelation)
+//
 // - have CURIEs - AddCurieLinks([]*LinkObject)
+//
 // - embed other resources - AddResource(ResourceRelation)
 type Resource interface {
 	Data() mapping.PropertyMap
@@ -26,20 +30,22 @@ type Resource interface {
 }
 
 type resourceObject struct {
-	data     mapping.PropertyMap `json:"-"`
-	links    links               `json:"_links,omitempty"`
-	embedded embeddedResources   `json:"_embedded,omitempty"`
+	data     mapping.PropertyMap
+	links    Links
+	embedded embeddedResources
 }
 
-// NewResourceObject initialises a valid Resource.
+// NewResourceObject initialises a Resource.
 func NewResourceObject() Resource {
-	return &resourceObject{data: mapping.PropertyMap{}, links: links{}, embedded: embeddedResources{}}
+	return &resourceObject{data: mapping.PropertyMap{}, links: Links{}, embedded: embeddedResources{}}
 }
 
+// Data returns mapping.PropertyMap describng the assigned data.
 func (r *resourceObject) Data() mapping.PropertyMap {
 	return r.data
 }
 
+// AddData assigns any type of data to ResourceObject.
 func (r *resourceObject) AddData(data interface{}) {
 	value := mapping.MapData(data)
 
@@ -48,14 +54,17 @@ func (r *resourceObject) AddData(data interface{}) {
 	}
 }
 
+// Links returns a mapping.NamedMap of assigned link relations.
 func (r *resourceObject) Links() mapping.NamedMap {
 	return r.links.ToMap()
 }
 
+// EmbeddedResources returns a mapping.NamedMap of embedded resources.
 func (r *resourceObject) EmbeddedResources() mapping.NamedMap {
 	return r.embedded.ToMap()
 }
 
+// ToMap converts ResourceObject to mapping.NamedMap.
 func (r *resourceObject) ToMap() mapping.NamedMap {
 	properties := mapping.PropertyMap{}
 
@@ -76,16 +85,19 @@ func (r *resourceObject) ToMap() mapping.NamedMap {
 	return mapping.NamedMap{Name: "root", Content: properties}
 }
 
+// AddCurieLinks adds a set of LinkObjects usable as CURIES to ResourceObject.
 func (r *resourceObject) AddCurieLinks(linkObjects []*LinkObject) {
 	rel, _ := NewLinkRelation(relationtype.CURIES)
 	rel.SetLinks(linkObjects)
 	r.AddLink(rel)
 }
 
+// AddLink adds a LinRelation to ResourceObject.
 func (r *resourceObject) AddLink(rel LinkRelation) {
 	r.links[rel.Name()] = rel
 }
 
+// AddResource adds a ResourceRelation to ResourceObject.
 func (r *resourceObject) AddResource(rel ResourceRelation) {
 	r.embedded[rel.Name()] = rel
 }
