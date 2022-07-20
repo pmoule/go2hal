@@ -6,6 +6,7 @@ package hal
 
 import (
 	"encoding/json"
+	"net/http"
 )
 
 // Encoder to encode a Resource into a valid HAL document.
@@ -26,4 +27,20 @@ func (enc *standardEncoder) ToJSON(resource Resource) ([]byte, error) {
 	namedMap := resource.ToMap()
 
 	return json.Marshal(namedMap.Content)
+}
+
+// WriteTo writes the content to a ResponseWriter
+func (enc *standardEncoder) WriteTo(w http.ResponseWriter, statusCode int, resource Resource) (int, error) {
+	b, err := enc.ToJSON(resource)
+	if err != nil {
+		return -1, err
+	}
+
+	header := w.Header()
+	if val := header["Content-Type"]; len(val) == 0 {
+		header["Content-Type"] = []string{JSONMimeType}
+	}
+
+	w.WriteHeader(statusCode)
+	return w.Write(b)
 }
