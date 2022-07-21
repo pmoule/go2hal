@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/pmoule/go2hal/hal/mapping"
+	"github.com/skhaz/go2hal/hal/mapping"
 )
 
 func TestNewResource(t *testing.T) {

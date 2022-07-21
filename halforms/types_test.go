@@ -8,8 +8,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/pmoule/go2hal/hal"
-	"github.com/pmoule/go2hal/hal/relationtype"
+	"github.com/skhaz/go2hal/hal"
+	"github.com/skhaz/go2hal/hal/relationtype"
 )
 
 func TestDocument(t *testing.T) {

@@ -7,8 +7,8 @@ package hal
 import (
 	"errors"
 
-	"github.com/pmoule/go2hal/hal/mapping"
-	"github.com/pmoule/go2hal/hal/relationtype"
+	"github.com/skhaz/go2hal/hal/mapping"
+	"github.com/skhaz/go2hal/hal/relationtype"
 )
 
 // Relation provides a descriptive name to add a meaning to

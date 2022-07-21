@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pmoule/go2hal/hal/relationtype"
+	"github.com/skhaz/go2hal/hal/relationtype"
 )
 
 type Actor struct {

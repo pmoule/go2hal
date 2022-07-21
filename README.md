@@ -1,8 +1,8 @@
 # go2hal
-![Build](https://github.com/pmoule/go2hal/actions/workflows/go_build_and_test.yml/badge.svg)
-[![codecov](https://codecov.io/gh/pmoule/go2hal/branch/master/graph/badge.svg)](https://codecov.io/gh/pmoule/go2hal)
-[![GoDoc](https://godoc.org/github.com/pmoule/go2hal?status.svg)](https://godoc.org/github.com/pmoule/go2hal)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://pmoule.mit-license.org)
+![Build](https://github.com/skhaz/go2hal/actions/workflows/go_build_and_test.yml/badge.svg)
+[![codecov](https://codecov.io/gh/skhaz/go2hal/branch/master/graph/badge.svg)](https://codecov.io/gh/skhaz/go2hal)
+[![GoDoc](https://godoc.org/github.com/skhaz/go2hal?status.svg)](https://godoc.org/github.com/skhaz/go2hal)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://skhaz.mit-license.org)
 
 A **Go** implementation of **Hypertext Application Language (HAL)**.
 It provides essential data structures and features a JSON generator
@@ -32,11 +32,11 @@ As an add-on it also supports the [The HAL-FORMS Media Type](https://rwcbook.git
 ### Preliminary stuff
 Download and install `go2hal` into your GOPATH.
 ```
-go get github.com/pmoule/go2hal
+go get github.com/skhaz/go2hal
 ```
 Import the `hal` package to get started.
 ```go
-import "github.com/pmoule/go2hal/hal"
+import "github.com/skhaz/go2hal/hal"
 ```
 ### Create a Resource and JSON generation
 First create a Resource Object as your HAL document's root element.
@@ -484,7 +484,7 @@ Generated JSON
 ## Documentation
 See package documentation:
 
-[![GoDoc](https://godoc.org/github.com/pmoule/go2hal?status.svg)](https://godoc.org/github.com/pmoule/go2hal)
+[![GoDoc](https://godoc.org/github.com/skhaz/go2hal?status.svg)](https://godoc.org/github.com/skhaz/go2hal)
 
 ## License
 `go2hal` is released under MIT license. See [LICENSE](LICENSE.txt).

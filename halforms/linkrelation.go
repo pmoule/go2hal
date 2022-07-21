@@ -4,7 +4,7 @@
 
 package halforms
 
-import "github.com/pmoule/go2hal/hal"
+import "github.com/skhaz/go2hal/hal"
 
 // NewHALFormsRelation creates a relation from provided relation name and href.
 // The contained LinkObject's type property has application/prs.hal-forms+json as

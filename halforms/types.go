@@ -7,8 +7,8 @@ package halforms
 import (
 	"net/http"
 
-	"github.com/pmoule/go2hal/hal"
-	"github.com/pmoule/go2hal/hal/mapping"
+	"github.com/skhaz/go2hal/hal"
+	"github.com/skhaz/go2hal/hal/mapping"
 )
 
 // InlineItem is a default item for the Options inline property.

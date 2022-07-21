@@ -7,7 +7,7 @@ package hal
 import (
 	"testing"
 
-	"github.com/pmoule/go2hal/hal/relationtype"
+	"github.com/skhaz/go2hal/hal/relationtype"
 )
 
 func TestNewResourceFactory(t *testing.T) {

@@ -5,8 +5,8 @@
 package hal
 
 import (
-	"github.com/pmoule/go2hal/hal/mapping"
-	"github.com/pmoule/go2hal/hal/relationtype"
+	"github.com/skhaz/go2hal/hal/mapping"
+	"github.com/skhaz/go2hal/hal/relationtype"
 )
 
 // Resource is the root element of a HAL document.
