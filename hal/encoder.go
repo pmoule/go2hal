@@ -12,6 +12,7 @@ import (
 // Encoder to encode a Resource into a valid HAL document.
 type Encoder interface {
 	ToJSON(resource Resource) ([]byte, error)
+	WriteTo(w http.ResponseWriter, statusCode int, resource Resource) (int, error)
 }
 
 type standardEncoder struct {
