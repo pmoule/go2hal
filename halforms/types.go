@@ -44,8 +44,8 @@ type InlineItem struct {
 type Options struct {
 	Inline         []interface{}   `json:"inline"`
 	Link           *hal.LinkObject `json:"link,omitempty"`
-	MaxItems       string          `json:"maxItems"`
-	MinItems       string          `json:"minItems"`
+	MaxItems       uint            `json:"maxItems"`
+	MinItems       uint            `json:"minItems"`
 	PromptField    string          `json:"promptField"`
 	SelectedValues []string        `json:"selectedValues"`
 	ValueField     string          `json:"valueField"`
@@ -97,10 +97,10 @@ type Property struct {
 	Templated   bool     `json:"templated"`
 	Value       string   `json:"value"`
 	Cols        uint     `json:"cols"`
-	Max         string   `json:"max"`
-	MaxLength   string   `json:"maxLength"`
-	Min         string   `json:"min"`
-	MinLength   string   `json:"minLength"`
+	Max         int      `json:"max"`
+	MaxLength   uint     `json:"maxLength"`
+	Min         int      `json:"min"`
+	MinLength   uint     `json:"minLength"`
 	Options     *Options `json:"options,omitempty"`
 	Placeholder string   `json:"placeholder"`
 	Rows        uint     `json:"rows"`
