@@ -9,3 +9,6 @@ const EmbeddedProperty string = "_embedded"
 
 // LinksProperty is a reserved name for embedding Link Objects in HAL documents.
 const LinksProperty string = "_links"
+
+// HALJSONMimeType is the mimetype of HAL JSON documents
+const HALJSONMimeType string = "application/hal+json; charset=utf-8"
